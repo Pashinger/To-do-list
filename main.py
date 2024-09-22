@@ -251,14 +251,13 @@ if __name__ == '__main__':
 
 # todo:
 #  1. sformatuj css, font itd
-#  4. environmental variables
 #  6. dodaj przycisk przy wyświetlających się listach, że można sciągnąć ją jako pdf
 #  7. albo wysłać na maila albo dadać do Google Calendar
-#  8. to niżej też trzeba przesunąć na prawo
 #  9. flash messages powinny znikać
 #  11. dodaj drugą table do mysql, która będzie zawierać listy to-do
 #  12. zrób ciemną wersję strony z odwróconymi kolorami
 #  13. Obtain an SSL Certificate
 #  14. http, lax? w app.config
-#  15. dodaj lepsze opisy błędów w updatowaniu username i password
 #  16. dodaj forgot my password - wysyła na maila
+#  17. dodaj ikonki do flash messages?
+#  18. csfr dodaj do form?
