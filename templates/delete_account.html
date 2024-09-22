@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="POST">
+        <h1>Do you really want to delete your account?</h1>
+        <br>
+        <p><button class="btn btn-danger" name="yes_delete">Yes, delete my account</button></p>
+        <br>
+        <p><button class="btn btn-dark" name="cancel_delete">No, take me back to the home page</button></p>
+    </form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="mb-3">
+    <h2>Update your profile:</h2>
+    <br>
+    <h6>Your e-mail account: {{ current_user.user_email }}</h6>
+    <br>
+    <a class="btn btn-dark" href="{{ url_for('update_username') }}">Change username</a>
+    or
+    <a class="btn btn-dark" href="{{ url_for('update_password') }}">Change password</a>
+    <br>
+    <br>
+    <p><a class="btn btn-danger" href="{{ url_for('delete_account') }}">Delete your account</a></p>
+</div>
+
+{% endblock %}
