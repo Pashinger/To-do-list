@@ -2,31 +2,27 @@
 
 {% block content %}
 
-{% if False: %}
-    <h1>Hello!</h1>
-    <p>Your to-do lists:</p>
+<div class="mb-3">
+    <h2>Create a new account:</h2>
     <br>
-    <p>Delete your account:</p>
-{% else %}
-    <div class="mb-3">
-        <h2>Log in to see your lists or create an account:</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
         <br>
-        <form method="POST">
-            {{ account_form.hidden_tag() }}
-            {{ account_form.username.label(class="form-label") }}
-            {{ account_form.username(class="form-control") }}
-            <br>
-            {{ account_form.email.label(class="form-label") }}
-            {{ account_form.email(class="form-control") }}
-            <br>
-            {{ account_form.password.label(class="form-label") }}
-            {{ account_form.password(class="form-control") }}
-            <br>
-            {{ account_form.login_submit(class="btn btn-dark") }}
-            or {{ account_form.sign_up_submit(class="btn btn-dark") }}
-        </form>
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+        <br>
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control") }}
+        <br>
+        {{ form.recaptcha }}
+        <br>
+        {{ form.sign_up_submit(class="btn btn-dark") }}
+    </form>
+    <div class="mt-3">
+        <a class="btn btn-link" href="{{ url_for('account_login') }}">Do you already have an account? Log in here</a>
     </div>
-
-{% endif %}
+</div>
 
 {% endblock %}

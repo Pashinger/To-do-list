@@ -2,6 +2,7 @@
 
 {% block content %}
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <h1>Do you really want to delete your account?</h1>
         <br>
         <p><button class="btn btn-danger" name="yes_delete">Yes, delete my account</button></p>

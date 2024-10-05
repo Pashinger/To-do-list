@@ -6,10 +6,11 @@
     <h6>Current username: {{ current_user.username }}</h6>
     <br>
     <form method="POST">
-        {{ update_username_form.new_username.label(class="form-label") }}
-        {{ update_username_form.new_username(class="form-control") }}
+        {{ form.hidden_tag() }}
+        {{ form.new_username.label(class="form-label") }}
+        {{ form.new_username(class="form-control") }}
         <br>
-        {{ update_username_form.new_username_submit(class="btn btn-dark") }}
+        {{ form.new_username_submit(class="btn btn-dark") }}
     </form>
 
 {% endblock %}
