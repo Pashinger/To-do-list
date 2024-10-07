@@ -103,7 +103,8 @@ class Users(UserMixin, db.Model):
     user_email = db.Column(db.String(120), nullable=False, unique=True)
     user_password = db.Column(db.String(255), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.now(UTC))
-    token_last_sent = db.Column(db.DateTime, nullable=True)
+    # token_last_sent = db.Column(db.DateTime, nullable=True)
+    # tokens_used = db.Column(db.JSON, default={})
 
     # Allow objects to be identified by username
     def __repr__(self):
@@ -228,19 +229,16 @@ def forgot_password():
         user_email = form.provide_email.data
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
-            # if user.token_last_sent == None
-            time_difference = datetime.now(UTC).replace(tzinfo=None) - datetime.fromisoformat('2024-10-05 14:46:23.283+02:00')
-            # time_difference = datetime.now(UTC).replace(tzinfo=None) - user.token_last_sent
-            print(time_difference)
-            if time_difference > 3600:
-                flash('A password reset link has already been sent to the email you provided - check your inbox', 'info')
-                return redirect(url_for('forgot_password'))
-            else:
-        # if datetime.now(UTC) -  > 3600:
+            if not user.token_last_sent or timedelta(minutes=30) < (datetime.now(UTC).replace(tzinfo=None) - user.token_last_sent):
+            # if not user.token_last_sent or timedelta(minutes=1) < (datetime.now(UTC).replace(tzinfo=None) - user.token_last_sent):
                 send_password_reset(user.user_email)
-                # user.reset_token_sent_date = datetime.now(UTC)
+                user.token_last_sent = datetime.now(UTC)
                 db.session.commit()
                 flash('An email has been sent with instructions to reset your password', 'warning')
+                return redirect(url_for('forgot_password'))
+            else:
+                flash('A password reset link has already been sent to the email you provided - check your inbox',
+                      'info')
                 return redirect(url_for('forgot_password'))
         else:
             flash('No account is associated with this email', 'info')
@@ -255,18 +253,13 @@ def reset_password(token):
     else:
         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         try:
-            user_email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+            user_email = serializer.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=1800)
         except SignatureExpired:
             flash('The reset token has expired. Please repeat the password reset procedure', 'warning')
             return redirect(url_for('forgot_password'))
         except BadSignature:
             flash('Invalid token. Please repeat the password reset procedure', 'warning')
             return redirect(url_for('forgot_password'))
-
-        # NIE ZROBILES WERYFIKACJI TOKENA TUTAJ - VERIFY TOKEN
-        # DODAJ KOLEJNĄ KOLUMNĘ W DB, KTÓRA MA VAlue reset token used = False domyślnie a
-        # dodaj kolumne token_last_timestamp - będzie się uaktualniać, żeby sprawdzić czy dalej aktualny?
-        # jeśli dalej to flash message: flash('A reset link has been sent to your email address')
         form = UpdatePasswordForm()
         user_to_update = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user_to_update:
@@ -282,10 +275,17 @@ def reset_password(token):
                                                                           method='pbkdf2:sha256',
                                                                           salt_length=8)
                         user_to_update.user_password = hash_and_salted_password
+                        user_to_update.token_last_sent = None
                         try:
                             db.session.commit()
                             flash('Password updated successfully', 'success')
                             return redirect(url_for('account_login'))
+
+                            # STWORZYĆ NOWĄ KOLUMNĘ W DB, KTÓRA MA JSONA
+                            # , KTÓRY JEST DICT GDZIE KEY TO DATETIME, KIEDY BYŁ WYSŁANY TOKEN A
+                            # A VALUE TO TRUE ALBO FALSE. JAK FALSE TO JUZ NIE MOZNA GO WYKORZYSTAC
+
+                        # TU ZMIEŃ NA KONKRETNY EXCEPTION
                         except Exception:
                             flash('There was a problem, user profile hasn\'t been updated', 'warning')
                             return redirect(url_for('update_profile'))
@@ -382,6 +382,7 @@ def delete_account():
             try:
                 db.session.delete(current_user)
                 db.session.commit()
+            #     TU DODAJ KONKRETNY EXCEPTION
             except Exception:
                 flash('There was a problem, your account hasn\'t been deleted', 'warning')
                 return redirect(url_for('delete_account'))
