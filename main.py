@@ -169,7 +169,7 @@ def account_login():
                 else:
                     flash('There is no such user in the database. Create an account to access your lists', 'info')
                     form.password.data = ''
-                    return redirect(url_for('add_user'))
+                    return redirect(url_for('account_login'))
         return render_template('account_login.html',
                                form=form)
 
