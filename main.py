@@ -413,6 +413,18 @@ def delete_account():
     return render_template('delete_account.html', csrf_token=csrf_token)
 
 
+# About page
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+# About page
+@app.route('/suggest_features', methods=['GET', 'POST'])
+def suggest_features():
+    return render_template('suggest_features.html')
+
+
 # Missing or invalid CSRF token
 @app.errorhandler(400)
 def csrf_error(e):
