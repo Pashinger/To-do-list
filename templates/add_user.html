@@ -10,23 +10,23 @@
       </div>
       <div class="modal-body p-5 pt-0">
         <form method="POST">
+          {{ form.hidden_tag() }}
           <div class="form-floating mb-3">
-            {{ form.hidden_tag() }}
-            {{ form.username.label(class="form-label") }}
-            {{ form.username(class="form-control") }}
+            {{ form.username(class="form-control", id="floatingInput", placeholder="example_username") }}
+            {{ form.username.label(class="form-label", for="floatingInput") }}
           </div>
           <div class="form-floating mb-3">
-              {{ form.email.label(class="form-label") }}
-              {{ form.email(class="form-control") }}
+              {{ form.email(class="form-control", id="floatingInput", placeholder="name@example.com") }}
+              {{ form.email.label(class="form-label", for="floatingInput") }}
           </div>
           <div class="form-floating mb-3">
-              {{ form.password.label(class="form-label") }}
-              {{ form.password(class="form-control") }}
+              {{ form.password(class="form-control", id="floatingInput", placeholder="example_password") }}
+              {{ form.password.label(class="form-label", for="floatingInput") }}
           </div>
           <div class="form-floating mb-3">
               {{ form.recaptcha }}
           </div>
-          {{ form.sign_up_submit(class="btn btn-dark") }}
+          {{ form.sign_up_submit(class="btn btn-dark w-100") }}
           <hr class="my-4">
             <div>
                 <a class="btn btn-link d-block text-center" href="{{ url_for('account_login') }}">Do you already have an account? Log in here</a>

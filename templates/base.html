@@ -9,9 +9,8 @@
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="static/images/favicon.png">
   </head>
-  <body>
+  <body class="d-flex flex-column h-100">
     {% include 'navbar.html' %}
-    <br>
     {% for message in get_flashed_messages(with_categories=True) %}
     <div class="alert alert-dark {{ message[0] }} alert-dismissible fade show" role="alert">
         {% if message[0] == 'success' %}

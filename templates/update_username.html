@@ -1,16 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Update your username</h2>
-    <br>
-    <h6>Current username: {{ current_user.username }}</h6>
-    <br>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        {{ form.new_username.label(class="form-label") }}
-        {{ form.new_username(class="form-control") }}
-        <br>
-        {{ form.new_username_submit(class="btn btn-dark") }}
-    </form>
+
+<div class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5" tabindex="-1" role="dialog" id="modalSignin">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header p-5 pb-4 border-bottom-0">
+        <h1 class="fw-bold mb-0 fs-2 text-center w-100">Update your username</h1>
+      </div>
+      <div class="modal-body p-5 pt-0">
+          <p class="text-center w-100">Current username: <strong>{{ current_user.username }}</strong></p>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+          <div class="form-floating mb-3">
+            {{ form.new_username(class="form-control", id="floatingInput", placeholder="name@example.com") }}
+            {{ form.new_username.label(class="form-label", for="floatingInput") }}
+          </div>
+          <div>
+            {{ form.new_username_submit(class="btn btn-dark w-100") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
+

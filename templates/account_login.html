@@ -6,25 +6,25 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content rounded-4 shadow">
       <div class="modal-header p-5 pb-4 border-bottom-0">
-        <h1 class="fw-bold mb-0 fs-2">Log in to see your lists</h1>
+        <h1 class="fw-bold mb-0 fs-2 text-center w-100">Log in to your account</h1>
       </div>
       <div class="modal-body p-5 pt-0">
         <form method="POST">
+          {{ form.hidden_tag() }}
           <div class="form-floating mb-3">
-            {{ form.hidden_tag() }}
-            {{ form.email.label(class="form-label") }}
-            {{ form.email(class="form-control") }}
+            {{ form.email(class="form-control", id="floatingInput", placeholder="name@example.com") }}
+            {{ form.email.label(class="form-label", for="floatingInput") }}
           </div>
           <div class="form-floating mb-3">
-            {{ form.password.label(class="form-label") }}
-            {{ form.password(class="form-control") }}
+            {{ form.password(class="form-control", id="floatingPassword", placeholder="Write your password:") }}
+            {{ form.password.label(class="form-label", id="floatingPassword") }}
           </div>
             {{ form.login_submit(class="btn btn-dark") }}
-            <a class="btn btn-dark" href="{{ url_for('add_user') }}">Do not have an account? Register here</a>
+            <a class="btn btn-dark float-end" href="{{ url_for('add_user') }}">Do not have an account? Register here</a>
             <hr class="my-4">
             <div class="d-block text-center">
-                <a class="text-dark" href="{{ url_for('forgot_username') }}">Forgot your username?</a> or
-                <a class="text-dark" href="{{ url_for('forgot_password') }}">Forgot your password?</a>
+                <a class="text-dark text-decoration-none" href="{{ url_for('forgot_username') }}">Forgot your username?</a> or
+                <a class="text-dark text-decoration-none" href="{{ url_for('forgot_password') }}">Forgot your password?</a>
             </div>
         </form>
       </div>

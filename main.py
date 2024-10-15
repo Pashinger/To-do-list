@@ -1,7 +1,8 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
-from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm
+from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm, \
+    SuggestFeatureForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
@@ -9,7 +10,6 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime, timedelta, UTC
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-
 
 app = Flask(__name__)
 
@@ -86,12 +86,39 @@ def send_username(user_email, username):
                   sender=app.config['MAIL_USERNAME'],
                   recipients=[user_email])
     msg.html = f'''
-        <p>Your username is: <b>{username}</b></p>
-        <p>Click this link to go to the login page and use it to log in: 
-        <a href="{login_url}">Login page</a></p>
+        <p>Your username is: <strong>{username}</strong></p>
+        <p>Click <a href="{login_url}">this link</a> to go to the login page.
+        <br>
         <p>If you did not make the request, simply ignore this email - no changes will be made.</p>
     '''
     mail.send(msg)
+
+
+# Send confirmation email with suggested features
+def send_suggestions_confirmation(email, message):
+    # send email to commenter
+    msg_commenter = Message('Your suggestions have been submitted - we hear you!',
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[email])
+    msg_commenter.html = f'''
+        <p>Hello,</p>
+        <p>your suggestions have been submitted to the creators. You can expect an answer in a few days.</p>
+        <p>Here is the message you've submitted:</p>
+        <p><i>"{message}"<i/></p>
+        <p>Do have a nice day,</p>
+        <p>Jakub</p>
+        <br>
+        <p>This is an automated message - please do not answer this email.</p>
+        <br>
+        <p>If you did not make the request, simply ignore this email.</p>
+    '''
+    mail.send(msg_commenter)
+    # send suggestions to the developer
+    msg_creator = Message(f'Suggestions from user: {email}',
+                          sender=app.config['MAIL_USERNAME'],
+                          recipients=[app.config['MAIL_USERNAME']])
+    msg_creator.html = message
+    mail.send(msg_creator)
 
 
 # Setup user_loader callback
@@ -419,10 +446,19 @@ def about():
     return render_template('about.html')
 
 
-# About page
+# Suggest a feature
 @app.route('/suggest_features', methods=['GET', 'POST'])
 def suggest_features():
-    return render_template('suggest_features.html')
+    form = SuggestFeatureForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            commenter_email = request.form['provide_email']
+            comment = request.form['textarea']
+            formatted_comment = comment.replace('\n', '<br>')
+            send_suggestions_confirmation(commenter_email, formatted_comment)
+            flash('Your suggestions have been submitted. A confirmation email has been sent to your email')
+            return redirect(url_for('suggest_features'))
+    return render_template('suggest_features.html', form=form)
 
 
 # Missing or invalid CSRF token
@@ -447,10 +483,12 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 # todo:
-#  1. sformatuj css, font itd
 #  6. dodaj przycisk przy wyświetlających się listach, że można sciągnąć ją jako pdf
 #  7. albo wysłać na maila albo dadać do Google Calendar - zanim zaczniesz je robić,
 #  sprawdź jaki format mają te rzeczy z Google Calendar + API
 #  11. dodaj drugą table do mysql, która będzie zawierać listy to-do
 #  12. zrób ciemną wersję strony z odwróconymi kolorami
 #  13. Obtain an SSL Certificate, use https, http, lax?
+#  14 usuń nieużywane obrazki ze static
+#  15 footer nie jest sticky
+#  16 user page ma wyświetlać listy i dawać opcje wysłania do google calendar/na maila

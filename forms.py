@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, EmailField, SubmitField, PasswordField
+from wtforms import StringField, EmailField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -36,5 +36,12 @@ class UpdatePasswordForm(FlaskForm):
 
 class ForgotLoginForm(FlaskForm):
     provide_email = EmailField('Write your e-mail:', validators=[DataRequired(), Email()])
+    recaptcha = RecaptchaField()
     provide_email_submit = SubmitField('Submit email')
 
+
+class SuggestFeatureForm(FlaskForm):
+    provide_email = EmailField('Write your e-mail:', validators=[DataRequired(), Email()])
+    textarea = TextAreaField('Write your ideas here:', validators=[DataRequired(), Length(min=5, max=500)])
+    recaptcha = RecaptchaField()
+    suggest_feature_submit = SubmitField('Send')
