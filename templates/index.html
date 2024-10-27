@@ -1,6 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>BIIIIIIIII</h1>
-    <p>biringojela</p>
+
+<div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center col-md-12">
+  <div class="list-group col-md-4">
+    {{ list_name }}
+    <a href="#" tabindex="0" class="btn btn-lg btn" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-html="true" data-bs-title="edit task"
+       data-bs-content="<button>Button 1</button>">
+      wyrzuć śmieci
+    </a>
+    {% for task in tasks_list %}
+      <label class="list-group-item d-flex gap-3">
+        <input class="form-check-input flex-shrink-0" type="checkbox" value="" style="font-size: 1.375em;">
+        <span class="pt-1 form-checked-content">
+          <strong>{{ task }}</strong>
+        </span>
+      </label>
+    {% endfor %}
+    <form method="POST" class="list-group-item d-flex gap-3 bg-body-tertiary">
+      {{ form.hidden_tag() }}
+      <div class="dropdown">
+          <button class="btn ps-1 p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ url_for('static', filename='images/colorbox.jpg') }}" style="width: 1.375em; height: 1.375em;" alt="colorbox" loading="lazy">
+          </button>
+          <ul class="dropdown-menu" style="min-width: auto; padding: 0; margin: 0;">
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-success" type="radio" name="taskColor" value="success" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-warning" type="radio" name="taskColor" value="warning" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-primary" type="radio" name="taskColor" value="primary" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-danger" type="radio" name="taskColor" value="danger" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-secondary" type="radio" name="taskColor" value="secondary" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-light text-dark" type="radio" name="taskColor" value="light" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-dark" type="radio" name="taskColor" value="dark" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+          </ul>
+      </div>
+      <div class="d-flex w-100 align-items-center">
+        <div class="form-floating me-3 w-100">
+          {{ form.new_task(class="form-control", id="floatingInput", placeholder="add_a_task") }}
+          {{ form.new_task.label(class="form-label", for="floatingInput") }}
+        </div>
+          {{ form.new_task_submit(class="btn btn-dark") }}
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

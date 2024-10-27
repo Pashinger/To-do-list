@@ -40,8 +40,18 @@ class ForgotLoginForm(FlaskForm):
     provide_email_submit = SubmitField('Submit email')
 
 
+class DeleteAccountForm(FlaskForm):
+    recaptcha = RecaptchaField()
+    delete_account_submit = SubmitField('Delete my account')
+
+
 class SuggestFeatureForm(FlaskForm):
     provide_email = EmailField('Write your e-mail:', validators=[DataRequired(), Email()])
     textarea = TextAreaField('Write your ideas here:', validators=[DataRequired(), Length(min=5, max=500)])
     recaptcha = RecaptchaField()
     suggest_feature_submit = SubmitField('Send')
+
+
+class ToDoForm(FlaskForm):
+    new_task = StringField('Write a new task:', validators=[DataRequired(), Length(min=2, max=255)])
+    new_task_submit = SubmitField('add')

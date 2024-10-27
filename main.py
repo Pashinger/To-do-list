@@ -1,13 +1,13 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
-from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm, \
-    SuggestFeatureForm
+from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from flask_wtf.csrf import CSRFProtect, generate_csrf
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, UTC, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
@@ -48,6 +48,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'account_login'
 login_manager.login_message = 'You need to log in to access user settings'
 
+tasks_list = []
 
 @app.before_request
 def make_session_permanent():
@@ -151,9 +152,22 @@ with app.app_context():
 
 
 # Home page
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('index.html')
+    date_today = date.today().strftime("%d/%m/%Y")
+    if current_user.is_authenticated:
+        list_name = f'{current_user.username}\'s to-do list {date_today}'
+    else:
+        list_name = f'My to-do list {date_today}'
+    print(tasks_list)
+    # DODAJ PRZYCISK: MAKE NEW, KTÓRY KASUJE WSZYSTKO
+    # DODAJ PRZYCISK SAVE, KTÓRY ALBO USUWA ADD ALBO ODNOSI DO USERS I TAM SĄ GOTOWE LISTY
+    form = ToDoForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            tasks_list.append(form.new_task.data)
+            return redirect(url_for('home'))
+    return render_template('index.html', form=form, tasks_list=tasks_list, list_name=list_name)
 
 
 # Manage account
@@ -422,8 +436,9 @@ def update_password():
 @login_required
 def delete_account():
     csrf_token = generate_csrf()
+    form = DeleteAccountForm()
     if request.method == 'POST':
-        if 'yes_delete' in request.form:
+        if form.validate_on_submit():
             try:
                 db.session.delete(current_user)
                 db.session.commit()
@@ -435,9 +450,10 @@ def delete_account():
                 flash('Your account has been deleted', 'success')
                 logout_user()
                 return redirect(url_for('home'))
-        elif 'cancel_delete' in request.form:
-            return redirect(url_for('home'))
-    return render_template('delete_account.html', csrf_token=csrf_token)
+        else:
+            flash('Pass recaptcha to delete your account', 'info')
+            return redirect(url_for('delete_account'))
+    return render_template('delete_account.html', csrf_token=csrf_token, form=form)
 
 
 # About page
@@ -492,3 +508,23 @@ if __name__ == '__main__':
 #  14 usuń nieużywane obrazki ze static
 #  15 footer nie jest sticky
 #  16 user page ma wyświetlać listy i dawać opcje wysłania do google calendar/na maila
+#  17. listy to-do:
+#       baza danych do nich, relational db
+#       pojawiajace sie przyciski delete, edit, góra, dół
+#  18 gradient w tle jakiś ruszający się
+#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce
+#  20. tindog, day 58 - gradient, tło
+
+#
+# < span
+#
+#
+# class ="pt-1 form-checked-content" >
+#
+# < span
+# contenteditable = "true"
+#
+#
+# class ="w-100" > Add a new task < /span >
+#
+# < / span >
