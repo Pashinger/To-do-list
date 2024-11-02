@@ -10,6 +10,7 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime, timedelta, UTC, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from zenquotes_api import get_quote
 
 app = Flask(__name__)
 
@@ -49,6 +50,7 @@ login_manager.login_view = 'account_login'
 login_manager.login_message = 'You need to log in to access user settings'
 
 tasks_list = []
+
 
 @app.before_request
 def make_session_permanent():
@@ -165,7 +167,11 @@ def home():
     form = ToDoForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            tasks_list.append(form.new_task.data)
+            task_color = request.form.get('taskColor')
+            print(task_color)
+            if not task_color:
+                task_color = 'dark'
+            tasks_list.append([form.new_task.data, task_color])
             return redirect(url_for('home'))
     return render_template('index.html', form=form, tasks_list=tasks_list, list_name=list_name)
 
@@ -456,6 +462,15 @@ def delete_account():
     return render_template('delete_account.html', csrf_token=csrf_token, form=form)
 
 
+# Motivational quotes page
+@app.route('/motivation')
+def motivational_quotes():
+    quote_data = get_quote()
+    quote = quote_data[0]
+    author = quote_data[1]
+    return render_template('motivational_quotes.html', quote=quote, author=author)
+
+
 # About page
 @app.route('/about')
 def about():
@@ -498,10 +513,10 @@ def page_not_found(e):
 if __name__ == '__main__':
     app.run(debug=True)
 
+
 # todo:
 #  6. dodaj przycisk przy wyświetlających się listach, że można sciągnąć ją jako pdf
-#  7. albo wysłać na maila albo dadać do Google Calendar - zanim zaczniesz je robić,
-#  sprawdź jaki format mają te rzeczy z Google Calendar + API
+#  7. albo wysłać na maila albo dadać do Google Calendar
 #  11. dodaj drugą table do mysql, która będzie zawierać listy to-do
 #  12. zrób ciemną wersję strony z odwróconymi kolorami
 #  13. Obtain an SSL Certificate, use https, http, lax?
@@ -514,17 +529,3 @@ if __name__ == '__main__':
 #  18 gradient w tle jakiś ruszający się
 #  19. funkcje z wysyłaniem maili powinny być w nowej zakładce
 #  20. tindog, day 58 - gradient, tło
-
-#
-# < span
-#
-#
-# class ="pt-1 form-checked-content" >
-#
-# < span
-# contenteditable = "true"
-#
-#
-# class ="w-100" > Add a new task < /span >
-#
-# < / span >

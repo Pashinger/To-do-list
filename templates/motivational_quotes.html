@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center m-5 p-5">
+    <div class="card border-dark border-2 p-5 text-center bg-body-tertiary rounded-3 col-8" style="--bs-border-opacity: .7;">
+      <div class="card-body">
+          <h2 class="text-body-emphasis">
+            <strong><i>"{{ quote }}"</i></strong>
+          </h2>
+          <br>
+          {% if author %}
+          <p class="col-lg-8 mx-auto fs-5 text-muted">
+          {{ author }}
+          </p>
+          {% else %}
+          <p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="5em" height="5em" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+              <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0"/>
+            </svg>
+          </p>
+          {% endif %}
+          <br><br>
+      </div>
+          <div class="p-1 d-flex justify-content-center align-items-center position-relative">
+                  <small class="text-center">
+                      Inspirational quotes provided by <a href="https://zenquotes.io/" target="_blank">ZenQuotes API</a>
+                  </small>
+                  <a class="position-absolute end-0" href="{{ url_for('motivational_quotes') }}">
+                      <img src="{{ url_for('static', filename='images/dice.png') }}" alt="new quote" height="50" width="50">
+                  </a>
+          </div>
+    </div>
+</div>
+
+{% endblock %}
