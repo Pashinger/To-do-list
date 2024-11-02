@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="container px-3 px-lg-5" style="max-width: 1000px;">
+<div class="container p-5 px-3 px-lg-5" style="max-width: 1000px;">
   <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
     <div class="col-10 col-sm-8 col-lg-6">
         <img src="{{ url_for('static', filename='images/pic4.jpeg') }}" class="d-block mx-lg-auto img-fluid" alt="picture of a to-do list" width="700" height="500" loading="lazy">
@@ -16,15 +16,15 @@
       </p>
       <p><strong>Visit the creator's LinkedIn profile:&nbsp;&nbsp;</strong>
           <a href="https://www.linkedin.com/in/jakub-gniewek-375a021a0/" target="_blank">
-            <img src="{{ url_for('static', filename='images/LI-Logo.png') }}" alt="LinkedIn" width="100" height="30">
+            <img src="{{ url_for('static', filename='images/LI-Logo.png') }}" alt="LinkedIn" width="90" height="26">
           </a>
       </p>
         <p><strong>The features included are:</strong></p>
         <ul>
           <li>easy to-do lists creation, modification and labeling</li>
-          <li>integration with Google Calendar API - the user is able to add the tasks into Google Calendar environment</li>
           <li>secure username and password recovery using token verification</li>
           <li>the user can download the lists as PDF files</li>
+          <li>integration with <a href="https://zenquotes.io/" class="text-decoration-none" target="_blank">ZenQuotes API</a> for a dose of inspirational quotes</li>
         </ul>
         <p><strong>Main technologies used:</strong></p>
         <ul>
