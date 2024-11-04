@@ -9,7 +9,7 @@
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="static/images/favicon.png">
   </head>
-  <body class="d-flex flex-column h-100">
+  <body class="d-flex flex-column min-vh-100 gradient-background">
     {% include 'navbar.html' %}
     {% for message in get_flashed_messages(with_categories=True) %}
     <div class="alert alert-dark {{ message[0] }} alert-dismissible fade show" role="alert">
@@ -24,8 +24,10 @@
     </div>
     {% endfor %}
     <div>
-        {% block content %}
-        {% endblock %}
+        <div class="container flex-grow-1">
+            {% block content %}
+            {% endblock %}
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>

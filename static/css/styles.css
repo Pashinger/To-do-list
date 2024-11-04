@@ -10,3 +10,28 @@
 .form-floating textarea[rows] {
   height: calc(2em * var(--rows, 4));
 }
+
+.gradient-background {
+    background: linear-gradient(236deg, #9aa1a7, #f3a17c, #4b88c1);
+    background-size: 600% 600%;
+
+    -webkit-animation: CustomGradient 60s ease infinite;
+    -moz-animation: CustomGradient 60s ease infinite;
+    animation: CustomGradient 60s ease infinite;
+}
+
+@-webkit-keyframes CustomGradient {
+    0%{background-position:0% 60%}
+    50%{background-position:100% 41%}
+    100%{background-position:0% 60%}
+}
+@-moz-keyframes CustomGradient {
+    0%{background-position:0% 60%}
+    50%{background-position:100% 41%}
+    100%{background-position:0% 60%}
+}
+@keyframes CustomGradient {
+    0%{background-position:0% 60%}
+    50%{background-position:100% 41%}
+    100%{background-position:0% 60%}
+}

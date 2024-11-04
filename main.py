@@ -257,6 +257,7 @@ def add_user():
                                form=form)
 
 
+# Send an email with the username
 @app.route('/forgot_username', methods=['GET', 'POST'])
 def forgot_username():
     form = ForgotLoginForm()
@@ -276,6 +277,7 @@ def forgot_username():
                            form=form)
 
 
+# Send an email with password reset link
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     form = ForgotLoginForm()
@@ -284,9 +286,7 @@ def forgot_password():
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
             if not user.token_last_sent:
-                # user.token_last_sent = datetime.now(UTC)
                 user.token_last_sent = send_password_reset(user.user_email)
-                # print(user.token_last_sent, type(user.token_last_sent))
                 db.session.commit()
                 flash('An email has been sent with instructions to reset your password', 'warning')
                 return redirect(url_for('forgot_password'))
@@ -306,6 +306,7 @@ def forgot_password():
     return render_template('forgot_password.html', form=form)
 
 
+# Reset password from link
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if current_user.is_authenticated:
@@ -462,7 +463,7 @@ def delete_account():
     return render_template('delete_account.html', csrf_token=csrf_token, form=form)
 
 
-# Motivational quotes page
+# Motivational quotes page from API
 @app.route('/motivation')
 def motivational_quotes():
     quote_data = get_quote()
@@ -515,17 +516,12 @@ if __name__ == '__main__':
 
 
 # todo:
-#  6. dodaj przycisk przy wyświetlających się listach, że można sciągnąć ją jako pdf
-#  7. albo wysłać na maila albo dadać do Google Calendar
 #  11. dodaj drugą table do mysql, która będzie zawierać listy to-do
 #  12. zrób ciemną wersję strony z odwróconymi kolorami
 #  13. Obtain an SSL Certificate, use https, http, lax?
 #  14 usuń nieużywane obrazki ze static
-#  15 footer nie jest sticky
-#  16 user page ma wyświetlać listy i dawać opcje wysłania do google calendar/na maila
+#  16 user page ma wyświetlać listy i dawać opcje wysłania na maila/ściągnięcia
 #  17. listy to-do:
 #       baza danych do nich, relational db
 #       pojawiajace sie przyciski delete, edit, góra, dół
-#  18 gradient w tle jakiś ruszający się
-#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce
-#  20. tindog, day 58 - gradient, tło
+#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
