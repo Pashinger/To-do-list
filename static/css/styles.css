@@ -35,3 +35,7 @@
     50%{background-position:100% 41%}
     100%{background-position:0% 60%}
 }
+
+[class*="border-"] {
+    --bs-border-opacity: 0.7;
+}

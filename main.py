@@ -5,6 +5,7 @@ from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, Up
     SuggestFeatureForm, ToDoForm, DeleteAccountForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import DatabaseError
 from flask_mail import Mail, Message
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime, timedelta, UTC, date
@@ -351,8 +352,7 @@ def reset_password(token):
                             db.session.commit()
                             flash('Password updated successfully', 'success')
                             return redirect(url_for('account_login'))
-                        # TU ZMIEŃ NA KONKRETNY EXCEPTION
-                        except Exception:
+                        except DatabaseError:
                             flash('There was a problem, user profile hasn\'t been updated', 'warning')
                             return redirect(url_for('update_profile'))
                 else:
@@ -399,7 +399,7 @@ def update_username():
                 db.session.commit()
                 flash('Username updated successfully', 'success')
                 return redirect(url_for('user_account'))
-            except Exception:
+            except DatabaseError:
                 flash('There was a problem, user profile hasn\'t been updated', 'warning')
                 return render_template('update_user.html')
     return render_template('update_username.html',
@@ -427,7 +427,7 @@ def update_password():
                     db.session.commit()
                     flash('Password updated successfully', 'success')
                     return redirect(url_for('user_account'))
-                except Exception:
+                except DatabaseError:
                     flash('There was a problem, user profile hasn\'t been updated', 'warning')
                     return render_template('update_user.html')
         else:
@@ -449,8 +449,7 @@ def delete_account():
             try:
                 db.session.delete(current_user)
                 db.session.commit()
-            #     TU DODAJ KONKRETNY EXCEPTION
-            except Exception:
+            except DatabaseError:
                 flash('There was a problem, your account hasn\'t been deleted', 'warning')
                 return redirect(url_for('delete_account'))
             else:
@@ -525,3 +524,5 @@ if __name__ == '__main__':
 #       baza danych do nich, relational db
 #       pojawiajace sie przyciski delete, edit, góra, dół
 #  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
+#  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
+#  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
