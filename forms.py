@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, EmailField, SubmitField, PasswordField, TextAreaField
+from wtforms import StringField, EmailField, SubmitField, PasswordField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -55,3 +55,11 @@ class SuggestFeatureForm(FlaskForm):
 class ToDoForm(FlaskForm):
     new_task = StringField('Write a new task:', validators=[DataRequired(), Length(min=2, max=255)])
     new_task_submit = SubmitField('add')
+
+
+class ToDoTitleForm(FlaskForm):
+    title = StringField(validators=[DataRequired(), Length(min=2, max=80)])
+
+
+class CheckboxForm(FlaskForm):
+    checkbox = BooleanField()

@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
-    SuggestFeatureForm, ToDoForm, DeleteAccountForm
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
@@ -50,7 +50,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'account_login'
 login_manager.login_message = 'You need to log in to access user settings'
 
-tasks_list = []
+# tasks_list = []
 
 
 @app.before_request
@@ -157,24 +157,71 @@ with app.app_context():
 # Home page
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    date_today = date.today().strftime("%d/%m/%Y")
-    if current_user.is_authenticated:
-        list_name = f'{current_user.username}\'s to-do list {date_today}'
-    else:
-        list_name = f'My to-do list {date_today}'
-    print(tasks_list)
-    # DODAJ PRZYCISK: MAKE NEW, KTÓRY KASUJE WSZYSTKO
-    # DODAJ PRZYCISK SAVE, KTÓRY ALBO USUWA ADD ALBO ODNOSI DO USERS I TAM SĄ GOTOWE LISTY
-    form = ToDoForm()
+    csrf_token = generate_csrf()
+    add_form = ToDoForm()
+    checkbox_form = CheckboxForm()
+    if 'tasks_list' not in session:
+        session['tasks_list'] = []
+
+    if 'list_name' not in session:
+        date_today = date.today().strftime("%d/%m/%Y")
+        if current_user.is_authenticated:
+            session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
+        else:
+            session['list_name'] = f'My to-do list {date_today}'
+
+    show_list = False
+    if len(session['list_name']) > 0:
+        show_list = True
+
+    # TERAZ Z KOLEI JAK SIĘ ODKLIKNIE I KLIKNIE PONOWNIE, WSZSYTKIE SIĘ ZMIENIAJA NA CHECKED!!!! MASAKRA
+    #  CZY TO MA COŚ WSPÓLNEGO Z FORMS - ŻE JEST TYLKO JEDNA A NIE TO MULTIPLE? SPRAWDŹ TO
+    # też zauważ, że klikają się wszystkie checkboxes ale przekreśla się tylko ten właściwy! - coś w templacie?
+    # JAK DODAŁEŚ RETURN REDIRECT('HOME)' TO PRAWIE DZIALA, TERAZ TYLKO NIE DZIAŁA DODAWANIE NOWYCH, ROZKMIŃ CZEMU!!!
+
     if request.method == 'POST':
-        if form.validate_on_submit():
+        if add_form.validate_on_submit():
             task_color = request.form.get('taskColor')
-            print(task_color)
             if not task_color:
                 task_color = 'dark'
-            tasks_list.append([form.new_task.data, task_color])
+            session['tasks_list'].append([add_form.new_task.data, task_color, False])
+            session.modified = True
             return redirect(url_for('home'))
-    return render_template('index.html', form=form, tasks_list=tasks_list, list_name=list_name)
+
+        if checkbox_form.validate_on_submit():
+            checkbox_index = request.form.getlist('checkbox_hidden')
+            print(checkbox_index)
+
+            # checkboxes_clicked = request.form.getlist('checkboxes')
+            for task_index in checkbox_index:
+                print(session['tasks_list'][int(task_index)][2])
+                if session['tasks_list'][int(task_index)][2] == False:
+                    session['tasks_list'][int(task_index)][2] = True
+                else:
+                    session['tasks_list'][int(task_index)][2] = False
+            session.modified = True
+            print(session['tasks_list'])
+            return redirect(url_for('home'))
+            # checkbox_index = request.form.get('checkbox')
+            # print(checkbox_index)
+            # if session['tasks_list'][int(checkbox_index)][2] == False:
+            #     session['tasks_list'][int(checkbox_index)][2] = True
+            # else:
+            #     session['tasks_list'][int(checkbox_index)][2] = False
+
+            # TU DODAJ - JEŚLI USER KLIKNIE 'MAKE NEW' TO USUWA RZECZY Z LISTY, JEŚLI KLIKNIE 'SAVE' TO WYSKAKUJE
+            # MODAL GDZIE MOZESZ NAZWAC LISTE I MOZE DODAC JEJ TLO (ELEGANCKA KARTKA, STARY ZWÓJ, DZIECIĘCA LISTA, PLAIN)
+            # I MOZE STYL CZCIONKI - TIMES, BAJKOWA, ITALIC, STYL PISANY RĘCZNIE?
+            # I SPRAWDZA CZY JEST ZALOGOWANY, JAK NIE TO IDZIE DO LOGOWANIA
+
+
+    return render_template('index.html',
+                           add_form=add_form,
+                           checkbox_form=checkbox_form,
+                           tasks_list=session['tasks_list'],
+                           list_name=session['list_name'],
+                           csrf_token=csrf_token
+                           )
 
 
 # Manage account
@@ -526,3 +573,12 @@ if __name__ == '__main__':
 #  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
 #  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
 #  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
+#  22. daj get inspired po prawej także gdy się wyloguje użytkownik
+
+# { % if task[2] %}
+#
+#
+# { % else %}
+#
+#
+# { % endif %}

@@ -3,18 +3,18 @@
 {% block content %}
 
 <div class="d-flex justify-content-center align-items-center mb-0 m-5 p-5">
-  <div class="col-10 p-5 rounded text-body-emphasis bg-body-secondary border border-dark border-2">
+  <div class="col-10 p-5 rounded text-body-emphasis bg-body-secondary border border-dark border-2 text-center">
     <h4><strong>This website has been created as a part of a developer portfolio.</strong></h4>
+    <p class="lead mt-3 mb-1 pt-1"><strong>Visit the creator's LinkedIn profile:&nbsp;&nbsp;</strong>
+        <a href="https://www.linkedin.com/in/jakub-gniewek-375a021a0/" target="_blank">
+          <img src="{{ url_for('static', filename='images/LI-Logo.png') }}" alt="LinkedIn" width="90" height="26">
+        </a>
+    </p>
     <p class="lead my-3">
       <strong>See the project GitHub repository:&nbsp;&nbsp;</strong>
           <a href="https://github.com/Pashinger/To-do-list" target="_blank">
             <img src="{{ url_for('static', filename='images/github-mark.png') }}" alt="Project GitHub repository" width="30" height="30">
           </a>
-    </p>
-    <p class="lead mt-3 mb-1"><strong>Visit the creator's LinkedIn profile:&nbsp;&nbsp;</strong>
-        <a href="https://www.linkedin.com/in/jakub-gniewek-375a021a0/" target="_blank">
-          <img src="{{ url_for('static', filename='images/LI-Logo.png') }}" alt="LinkedIn" width="90" height="26">
-        </a>
     </p>
   </div>
 </div>
@@ -24,7 +24,7 @@
     <div class="row flex-grow-1 bg-body-secondary border border-dark border-2 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
       <div class="col p-5 d-flex flex-column position-static align-items-center">
         <h5 class="pb-3"><strong>The features included:</strong></h5>
-          <ul class="card-text mb-auto">
+          <ul class="custom-list card-text mb-auto">
             <li>easy to-do lists creation, modification and labeling</li>
             <li>secure username and password recovery using token verification</li>
             <li>the user can download the lists as PDF files</li>
@@ -39,7 +39,7 @@
     <div class="row flex-grow-1 bg-body-secondary border border-dark border-2 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
       <div class="col p-5 d-flex flex-column position-static align-items-center">
         <h5 class="pb-3"><strong>Main technologies used:</strong></h5>
-          <ul class="card-text mb-auto">
+          <ul class="custom-list card-text mb-auto">
             <li>Flask</li>
             <li>Bootstrap</li>
             <li>SQLAlchemy</li>
