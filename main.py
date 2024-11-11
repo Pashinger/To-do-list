@@ -157,9 +157,9 @@ with app.app_context():
 # Home page
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    csrf_token = generate_csrf()
     add_form = ToDoForm()
     checkbox_form = CheckboxForm()
+
     if 'tasks_list' not in session:
         session['tasks_list'] = []
 
@@ -170,16 +170,18 @@ def home():
         else:
             session['list_name'] = f'My to-do list {date_today}'
 
-    show_list = False
-    if len(session['list_name']) > 0:
-        show_list = True
-
-    # TERAZ Z KOLEI JAK SIĘ ODKLIKNIE I KLIKNIE PONOWNIE, WSZSYTKIE SIĘ ZMIENIAJA NA CHECKED!!!! MASAKRA
-    #  CZY TO MA COŚ WSPÓLNEGO Z FORMS - ŻE JEST TYLKO JEDNA A NIE TO MULTIPLE? SPRAWDŹ TO
-    # też zauważ, że klikają się wszystkie checkboxes ale przekreśla się tylko ten właściwy! - coś w templacie?
-    # JAK DODAŁEŚ RETURN REDIRECT('HOME)' TO PRAWIE DZIALA, TERAZ TYLKO NIE DZIAŁA DODAWANIE NOWYCH, ROZKMIŃ CZEMU!!!
-
     if request.method == 'POST':
+        if request.method == 'POST':
+
+            action = request.form.get('action')
+            if action == 'save':
+                # Handle save list logic
+                print('save list')
+            elif action == 'new':
+                print('new list')
+            elif action == 'edit':
+                print('edit list')
+
         if add_form.validate_on_submit():
             task_color = request.form.get('taskColor')
             if not task_color:
@@ -189,38 +191,30 @@ def home():
             return redirect(url_for('home'))
 
         if checkbox_form.validate_on_submit():
-            checkbox_index = request.form.getlist('checkbox_hidden')
-            print(checkbox_index)
+            checkbox_index = request.form.get('checkbox_hidden')
 
-            # checkboxes_clicked = request.form.getlist('checkboxes')
-            for task_index in checkbox_index:
-                print(session['tasks_list'][int(task_index)][2])
-                if session['tasks_list'][int(task_index)][2] == False:
-                    session['tasks_list'][int(task_index)][2] = True
-                else:
-                    session['tasks_list'][int(task_index)][2] = False
+            if session['tasks_list'][int(checkbox_index)][2]:
+                session['tasks_list'][int(checkbox_index)][2] = False
+            else:
+                session['tasks_list'][int(checkbox_index)][2] = True
             session.modified = True
-            print(session['tasks_list'])
-            return redirect(url_for('home'))
-            # checkbox_index = request.form.get('checkbox')
-            # print(checkbox_index)
-            # if session['tasks_list'][int(checkbox_index)][2] == False:
-            #     session['tasks_list'][int(checkbox_index)][2] = True
-            # else:
-            #     session['tasks_list'][int(checkbox_index)][2] = False
+
+            # TUTAJ DODAJ, JAK checkbox_index < tylu ile sie mieści na stronie bez scrollowania, to żeby redirectowało
+            # do głównej a nie do elementu
+
+            view_element = f'#{checkbox_index}'
+            return redirect(url_for('home') + view_element)
 
             # TU DODAJ - JEŚLI USER KLIKNIE 'MAKE NEW' TO USUWA RZECZY Z LISTY, JEŚLI KLIKNIE 'SAVE' TO WYSKAKUJE
             # MODAL GDZIE MOZESZ NAZWAC LISTE I MOZE DODAC JEJ TLO (ELEGANCKA KARTKA, STARY ZWÓJ, DZIECIĘCA LISTA, PLAIN)
             # I MOZE STYL CZCIONKI - TIMES, BAJKOWA, ITALIC, STYL PISANY RĘCZNIE?
             # I SPRAWDZA CZY JEST ZALOGOWANY, JAK NIE TO IDZIE DO LOGOWANIA
 
-
     return render_template('index.html',
                            add_form=add_form,
                            checkbox_form=checkbox_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
-                           csrf_token=csrf_token
                            )
 
 
@@ -574,11 +568,6 @@ if __name__ == '__main__':
 #  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
 #  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
 #  22. daj get inspired po prawej także gdy się wyloguje użytkownik
-
-# { % if task[2] %}
-#
-#
-# { % else %}
-#
-#
-# { % endif %}
+#  23. delete account modal wyrównaj teksty
+#  24. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
+#  25. czy da się tak zrobić, żeby gradient nie rozpoczynał się na nowo przy odświeżeniach?
