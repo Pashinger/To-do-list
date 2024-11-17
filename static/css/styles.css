@@ -40,6 +40,13 @@
     --bs-border-opacity: 0.7;
 }
 
+[class*="btn"] {
+     --bs-focus-ring-blur: 4px;
+     --bs-focus-ring-x: 5px;
+     --bs-focus-ring-y: 5px;
+}
+
 .custom-list {
   list-style-type: circle;
 }
+

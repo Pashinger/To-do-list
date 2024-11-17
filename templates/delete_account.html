@@ -6,7 +6,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm you want to delete your account</h1>
+        <h5 class="modal-title text-center w-100" id="exampleModalLabel">Confirm you want to delete your account</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST">
@@ -17,8 +17,14 @@
           </div>
       </div>
       <div class="modal-footer">
-        <a href="{{ url_for('home') }}" class="btn btn-dark" data-bs-dismiss="modal">Cancel</a>
-        {{ form.delete_account_submit(class="btn btn-danger") }}
+        <div class="row w-100">
+          <div class="col-6">
+            {{ form.delete_account_submit(class="btn btn-danger w-100") }}
+          </div>
+          <div class="col-6">
+            <a href="{{ url_for('home') }}" class="btn btn-dark w-100" data-bs-dismiss="modal">Cancel</a>
+          </div>
+        </div>
       </div>
       </form>
     </div>

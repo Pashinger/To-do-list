@@ -24,14 +24,14 @@ class ListForm(FlaskForm):
 
 class UpdateUsernameForm(FlaskForm):
     new_username = StringField('Write your new username:', validators=[DataRequired(), Length(min=2, max=16)])
-    new_username_submit = SubmitField('Update username')
+    new_username_submit = SubmitField('Save changes')
     recaptcha = RecaptchaField()
 
 
 class UpdatePasswordForm(FlaskForm):
     new_password = PasswordField('Write your new password:', validators=[DataRequired(), Length(min=8, max=35)])
     new_password_confirm = PasswordField('Confirm your new password:', validators=[DataRequired(), Length(min=8, max=35)])
-    new_password_submit = SubmitField('Update password')
+    new_password_submit = SubmitField('Save changes')
 
 
 class ForgotLoginForm(FlaskForm):

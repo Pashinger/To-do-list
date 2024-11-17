@@ -157,6 +157,7 @@ with app.app_context():
 # Home page
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    csrf_token = generate_csrf()
     add_form = ToDoForm()
     checkbox_form = CheckboxForm()
 
@@ -171,16 +172,21 @@ def home():
             session['list_name'] = f'My to-do list {date_today}'
 
     if request.method == 'POST':
-        if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'save':
+            if current_user.is_authenticated:
+                print('to będzie się sejwowało do bazy danych')
+                # tu daj link we flash message jak klikniesz your lists to wlacza sie  user_account
+                flash('The list has been successfully saved. Access it in \'Your lists\'', 'info')
+            else:
+                return redirect(url_for('user_account'))
 
-            action = request.form.get('action')
-            if action == 'save':
-                # Handle save list logic
-                print('save list')
-            elif action == 'new':
-                print('new list')
-            elif action == 'edit':
-                print('edit list')
+        elif action == 'new':
+            date_today = date.today().strftime("%d/%m/%Y")
+            session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
+            session['tasks_list'] = []
+            session.modified = True
+            return redirect(url_for('home'))
 
         if add_form.validate_on_submit():
             task_color = request.form.get('taskColor')
@@ -208,9 +214,8 @@ def home():
             # TU DODAJ - JEŚLI USER KLIKNIE 'MAKE NEW' TO USUWA RZECZY Z LISTY, JEŚLI KLIKNIE 'SAVE' TO WYSKAKUJE
             # MODAL GDZIE MOZESZ NAZWAC LISTE I MOZE DODAC JEJ TLO (ELEGANCKA KARTKA, STARY ZWÓJ, DZIECIĘCA LISTA, PLAIN)
             # I MOZE STYL CZCIONKI - TIMES, BAJKOWA, ITALIC, STYL PISANY RĘCZNIE?
-            # I SPRAWDZA CZY JEST ZALOGOWANY, JAK NIE TO IDZIE DO LOGOWANIA
-
     return render_template('index.html',
+                           csrf_token=csrf_token,
                            add_form=add_form,
                            checkbox_form=checkbox_form,
                            tasks_list=session['tasks_list'],
@@ -509,6 +514,9 @@ def motivational_quotes():
     quote_data = get_quote()
     quote = quote_data[0]
     author = quote_data[1]
+    if author == 'zenquotes.io':
+        author = False
+        quote = 'An inspirational quote is currently unavailable due to heavy demand :) Check it out in a moment!'
     return render_template('motivational_quotes.html', quote=quote, author=author)
 
 
