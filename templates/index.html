@@ -5,29 +5,68 @@
 <div class="modal fade modal-sm" id="TaskModal" tabindex="-1" aria-labelledby="TaskModal" aria-hidden="true">
   <div class="modal-dialog border border-1 rounded-3 border-secondary" style="max-width: 202px;">
     <div class="modal-content">
-      <div class="modal-body">
-        <button class="btn border-0 focus-ring focus-ring-secondary rounded-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Move up">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
-            <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
-          </svg>
-        </button>
-        <button class="btn border-0 focus-ring focus-ring-secondary rounded-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Move down">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-          </svg>
-        </button>
-        <button class="btn border-0 focus-ring focus-ring-secondary rounded-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit">
-          <svg xmlns="http://www.w3.org/2000/svg" width="0.8em" height="0.8em" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-            <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/>
-          </svg>
-        </button>
-        <button class="btn text-dark border-0 focus-ring focus-ring-secondary rounded-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Delete task">
-            <strong>X</strong>
-        </button>
-      </div>
+        <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" id="task-id-input" name="task_id" value="">
+
+          <div class="modal-body">
+            <button class="btn border-0 focus-ring focus-ring-secondary rounded-4"
+                    name="action"
+                    value="move_up"
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-title="Move up">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+                <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+              </svg>
+            </button>
+            <button class="btn border-0 focus-ring focus-ring-secondary rounded-4"
+                    name="action"
+                    value="move_down"
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-title="Move down">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+              </svg>
+            </button>
+            <button class="btn border-0 focus-ring focus-ring-secondary rounded-4"
+                    name="action"
+                    value="edit"
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="0.8em" height="0.8em" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/>
+              </svg>
+            </button>
+            <button class="btn text-dark border-0 focus-ring focus-ring-secondary rounded-4"
+                    name="action"
+                    value="delete"
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-title="Delete task">
+                <strong>X</strong>
+            </button>
+          </div>
+      </form>
+
     </div>
   </div>
 </div>
+
+<script>
+  const taskModal = document.getElementById('TaskModal');
+
+  taskModal.addEventListener('show.bs.modal', function (event) {
+    const triggerElement = event.relatedTarget;
+    const taskId = triggerElement.getAttribute('data-task-id');
+    const taskIdInput = document.getElementById('task-id-input');
+    taskIdInput.value = taskId;
+  });
+</script>
+
+
 
 <div class="d-flex flex-column flex-row p-5 gap-4 align-items-center justify-content-center col-md-12">
   <div class="list-group col-8 p-5 m-5 bg-body-tertiary border border-dark border-2">
@@ -82,15 +121,65 @@
             }}
           {% endif %}
         </form>
-          <div class="form-checked-content flex-grow-1 text-{{ task[1] }}"
+          <div class="form-checked-content flex-grow-1 text-break text-{{ task[1] }}"
                id="{{ loop.index0 }}"
                data-bs-toggle="modal"
-               data-bs-target="#TaskModal">
+               data-bs-target="#TaskModal"
+               data-task-id="{{ loop.index0 }}">
             <strong class="{{ 'text-decoration-line-through' if task[2] else '' }}">{{ task[0] }}</strong>
           </div>
       </div>
       {% endfor %}
 
+    {% if edited_task_data %}
+    <form method="POST" class="list-group-item d-flex gap-3 bg-body-secondary">
+      {{ edit_form.hidden_tag() }}
+      <div class="dropdown align-middle" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Choose text color" style="padding-top: 12px;">
+          <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ url_for('static', filename='images/colorbox.jpg') }}" style="width: 1.375em; height: 1.375em;" alt="colorbox" loading="lazy">
+          </button>
+          <ul class="dropdown-menu bg-body-secondary border-0" style="min-width: auto; padding: 0; margin: 0;">
+            {% if edited_task_data[1] == 'success' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-success" type="radio" name="taskColor" value="success" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-success" type="radio" name="taskColor" value="success" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+            {% if edited_task_data[1] == 'warning' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-warning" type="radio" name="taskColor" value="warning" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-warning" type="radio" name="taskColor" value="warning" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+            {% if edited_task_data[1] == 'primary' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-primary" type="radio" name="taskColor" value="primary" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-primary" type="radio" name="taskColor" value="primary" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+            {% if edited_task_data[1] == 'danger' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-danger" type="radio" name="taskColor" value="danger" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-danger" type="radio" name="taskColor" value="danger" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+            {% if edited_task_data[1] == 'secondary' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-secondary" type="radio" name="taskColor" value="secondary" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-secondary" type="radio" name="taskColor" value="secondary" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+            {% if edited_task_data[1] == 'dark' %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-dark" type="radio" name="taskColor" value="dark" style="font-size: 1.375em; padding: 0; margin: 0;" checked></li>
+            {% else %}
+            <li><input class="form-check-input shadow-none flex-shrink-0 text-bg-dark" type="radio" name="taskColor" value="dark" style="font-size: 1.375em; padding: 0; margin: 0;"></li>
+            {% endif %}
+          </ul>
+      </div>
+      <div class="d-flex w-100 align-items-center">
+        <div class="form-floating me-3 w-100">
+          {{ edit_form.edited_task(class="form-control", id="floatingInput", placeholder="edit_task", value=edited_task_data[0]) }}
+          {{ edit_form.edited_task.label(class="form-label", for="floatingInput") }}
+        </div>
+          {{ edit_form.edit_submit(class="btn btn-dark") }}
+      </div>
+    </form>
+    {% else %}
     <form method="POST" class="list-group-item d-flex gap-3 bg-body-secondary">
       {{ add_form.hidden_tag() }}
       <div class="dropdown align-middle" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Choose text color" style="padding-top: 12px;">
@@ -114,6 +203,7 @@
           {{ add_form.new_task_submit(class="btn btn-dark") }}
       </div>
     </form>
+    {% endif %}
   </div>
 </div>
 

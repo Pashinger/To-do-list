@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
-    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
@@ -159,6 +159,7 @@ with app.app_context():
 def home():
     csrf_token = generate_csrf()
     add_form = ToDoForm()
+    edit_form = EditTask()
     checkbox_form = CheckboxForm()
 
     if 'tasks_list' not in session:
@@ -180,11 +181,48 @@ def home():
                 flash('The list has been successfully saved. Access it in \'Your lists\'', 'info')
             else:
                 return redirect(url_for('user_account'))
-
+        #     tu dodaj next?
         elif action == 'new':
             date_today = date.today().strftime("%d/%m/%Y")
             session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
             session['tasks_list'] = []
+            session.modified = True
+            return redirect(url_for('home'))
+        elif action == 'move_up':
+            task_id = int(request.form.get('task_id'))
+            if task_id > 0:
+                task_to_move = session['tasks_list'][task_id]
+                session['tasks_list'].pop(task_id)
+                session['tasks_list'].insert(task_id-1, task_to_move)
+                session.modified = True
+            return redirect(url_for('home'))
+        elif action == 'move_down':
+            task_id = int(request.form.get('task_id'))
+            if task_id < len(session['tasks_list']):
+                task_to_move = session['tasks_list'][task_id]
+                session['tasks_list'].pop(task_id)
+                session['tasks_list'].insert(task_id+1, task_to_move)
+                session.modified = True
+            return redirect(url_for('home'))
+        elif action == 'edit':
+            task_id = int(request.form.get('task_id'))
+            task_to_edit = session['tasks_list'][task_id]
+            session['edited_task_data'] = task_to_edit
+            session['edited_task_id'] = task_id
+            return redirect(url_for('home'))
+        elif action == 'delete':
+            task_id = int(request.form.get('task_id'))
+            session['tasks_list'].pop(task_id)
+            session.modified = True
+            return redirect(url_for('home'))
+
+        if edit_form.validate_on_submit():
+            new_task_color = request.form.get('taskColor')
+            is_crossed_through = session['tasks_list'][session['edited_task_id']][2]
+            changed_task = [edit_form.edited_task.data, new_task_color, is_crossed_through]
+            session['tasks_list'].pop(session['edited_task_id'])
+            session['tasks_list'].insert(session['edited_task_id'], changed_task)
+            session.pop('edited_task_id')
             session.modified = True
             return redirect(url_for('home'))
 
@@ -210,13 +248,12 @@ def home():
 
             view_element = f'#{checkbox_index}'
             return redirect(url_for('home') + view_element)
-
-            # TU DODAJ - JEŚLI USER KLIKNIE 'MAKE NEW' TO USUWA RZECZY Z LISTY, JEŚLI KLIKNIE 'SAVE' TO WYSKAKUJE
-            # MODAL GDZIE MOZESZ NAZWAC LISTE I MOZE DODAC JEJ TLO (ELEGANCKA KARTKA, STARY ZWÓJ, DZIECIĘCA LISTA, PLAIN)
-            # I MOZE STYL CZCIONKI - TIMES, BAJKOWA, ITALIC, STYL PISANY RĘCZNIE?
+    edited_task_data = session.pop('edited_task_data', False)
     return render_template('index.html',
                            csrf_token=csrf_token,
+                           edited_task_data=edited_task_data,
                            add_form=add_form,
+                           edit_form=edit_form,
                            checkbox_form=checkbox_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
