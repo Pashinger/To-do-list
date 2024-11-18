@@ -17,14 +17,9 @@ class CreateAccountForm(FlaskForm):
     sign_up_submit = SubmitField('Create an account')
 
 
-class ListForm(FlaskForm):
-    task = StringField('Write a new task:', validators=[DataRequired()])
-    task_submit = SubmitField('Add')
-
-
 class EditTask(FlaskForm):
-    edited_task = StringField('Edit your task:', validators=[DataRequired()])
-    edit_submit = SubmitField('save')
+    edited_task = StringField('Edit your task:', validators=[DataRequired(), Length(min=1, max=500)])
+    edit_submit = SubmitField('Save')
 
 
 class UpdateUsernameForm(FlaskForm):
@@ -58,7 +53,7 @@ class SuggestFeatureForm(FlaskForm):
 
 
 class ToDoForm(FlaskForm):
-    new_task = StringField('Write a new task:', validators=[DataRequired(), Length(min=2, max=255)])
+    new_task = StringField('Write a new task:', validators=[DataRequired(), Length(min=1, max=500)])
     new_task_submit = SubmitField('add')
 
 

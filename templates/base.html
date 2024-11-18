@@ -51,6 +51,31 @@
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
+    <script>
+      const taskModal = document.getElementById('TaskModal');
+      taskModal.addEventListener('show.bs.modal', function (event) {
+        const triggerElement = event.relatedTarget;
+        const taskId = triggerElement.getAttribute('data-task-id');
+        const taskIdInput = document.getElementById('task-id-input');
+        taskIdInput.value = taskId;
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const body = document.querySelector(".gradient-background");
+        const duration = 60000;
+        const savedStartTime = parseInt(localStorage.getItem("gradientAnimationStartTime"), 10);
+        const currentTime = Date.now();
+        if (!savedStartTime) {
+          localStorage.setItem("gradientAnimationStartTime", currentTime);
+        }
+        const elapsed = currentTime - (savedStartTime || currentTime);
+        const offset = elapsed % duration;
+        body.style.animation = `CustomGradient ${duration}ms ease infinite`;
+        body.style.animationDelay = `-${offset}ms`;
+        localStorage.setItem("gradientAnimationStartTime", currentTime - offset);
+      });
+    </script>
     {% include 'footer.html' %}
   </body>
 </html>

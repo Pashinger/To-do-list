@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
-from forms import LoginForm, CreateAccountForm, ListForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
+from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
     SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
@@ -49,8 +49,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'account_login'
 login_manager.login_message = 'You need to log in to access user settings'
-
-# tasks_list = []
 
 
 @app.before_request
@@ -269,9 +267,7 @@ def user_account():
     else:
         # dodaj też listę z listami to do usera
         # dodaj przycisk, gdzie je można ściągnąć lub wysłać na maila/google calendar
-        form = ListForm()
-        return render_template('user.html',
-                               form=form)
+        return render_template('user.html')
 
 
 # Login to user account
@@ -601,18 +597,11 @@ if __name__ == '__main__':
 
 
 # todo:
-#  11. dodaj drugą table do mysql, która będzie zawierać listy to-do
-#  12. zrób ciemną wersję strony z odwróconymi kolorami
 #  13. Obtain an SSL Certificate, use https, http, lax?
-#  14 usuń nieużywane obrazki ze static
 #  16 user page ma wyświetlać listy i dawać opcje wysłania na maila/ściągnięcia
-#  17. listy to-do:
-#       baza danych do nich, relational db
-#       pojawiajace sie przyciski delete, edit, góra, dół
-#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
+#  17. listy to-do: baza danych do nich, relational db
 #  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
 #  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
-#  22. daj get inspired po prawej także gdy się wyloguje użytkownik
-#  23. delete account modal wyrównaj teksty
 #  24. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
-#  25. czy da się tak zrobić, żeby gradient nie rozpoczynał się na nowo przy odświeżeniach?
+#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
+#  20. configure your to-do list - czcionka, tło

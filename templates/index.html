@@ -55,16 +55,6 @@
   </div>
 </div>
 
-<script>
-  const taskModal = document.getElementById('TaskModal');
-
-  taskModal.addEventListener('show.bs.modal', function (event) {
-    const triggerElement = event.relatedTarget;
-    const taskId = triggerElement.getAttribute('data-task-id');
-    const taskIdInput = document.getElementById('task-id-input');
-    taskIdInput.value = taskId;
-  });
-</script>
 
 
 
@@ -176,7 +166,10 @@
           {{ edit_form.edited_task(class="form-control", id="floatingInput", placeholder="edit_task", value=edited_task_data[0]) }}
           {{ edit_form.edited_task.label(class="form-label", for="floatingInput") }}
         </div>
-          {{ edit_form.edit_submit(class="btn btn-dark") }}
+        <div class="row gap-1 p-1">
+          {{ edit_form.edit_submit(class="btn btn-dark", style="font-size: 0.75rem; padding: 0.20rem 0.5rem;") }}
+          <a href="{{ url_for('home') }}" class="btn btn-dark" style="font-size: 0.75rem; padding: 0.20rem 0.5rem;">Cancel</a>
+        </div>
       </div>
     </form>
     {% else %}
