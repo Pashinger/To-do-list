@@ -50,3 +50,14 @@
   list-style-type: circle;
 }
 
+.font-times {
+font-family: 'Times New Roman', Times, serif;
+}
+
+.font-courier {
+font-family: 'Courier New', Courier, monospace;
+}
+
+.font-segoe {
+font-family: 'Segoe Script', cursive;
+}

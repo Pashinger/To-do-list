@@ -22,6 +22,10 @@ class EditTask(FlaskForm):
     edit_submit = SubmitField('Save')
 
 
+class EditList(FlaskForm):
+    options_submit = SubmitField('Save')
+
+
 class UpdateUsernameForm(FlaskForm):
     new_username = StringField('Write your new username:', validators=[DataRequired(), Length(min=2, max=16)])
     new_username_submit = SubmitField('Save changes')

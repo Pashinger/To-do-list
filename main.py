@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
-    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
@@ -158,20 +158,25 @@ def home():
     csrf_token = generate_csrf()
     add_form = ToDoForm()
     edit_form = EditTask()
+    edit_list = EditList()
     checkbox_form = CheckboxForm()
 
     if 'tasks_list' not in session:
         session['tasks_list'] = []
-
     if 'list_name' not in session:
         date_today = date.today().strftime("%d/%m/%Y")
         if current_user.is_authenticated:
             session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
         else:
             session['list_name'] = f'My to-do list {date_today}'
+    if 'style' not in session:
+        session['style'] = 'plain'
+    if 'font' not in session:
+        session['font'] = 'times'
 
     if request.method == 'POST':
         action = request.form.get('action')
+        form_id = request.form.get('form_id')
         if action == 'save':
             if current_user.is_authenticated:
                 print('to będzie się sejwowało do bazy danych')
@@ -188,19 +193,23 @@ def home():
             return redirect(url_for('home'))
         elif action == 'move_up':
             task_id = int(request.form.get('task_id'))
+            task_to_move = session['tasks_list'][task_id]
+            session['tasks_list'].pop(task_id)
             if task_id > 0:
-                task_to_move = session['tasks_list'][task_id]
-                session['tasks_list'].pop(task_id)
                 session['tasks_list'].insert(task_id-1, task_to_move)
-                session.modified = True
+            else:
+                session['tasks_list'].insert(len(session['tasks_list']), task_to_move)
+            session.modified = True
             return redirect(url_for('home'))
         elif action == 'move_down':
             task_id = int(request.form.get('task_id'))
+            task_to_move = session['tasks_list'][task_id]
+            session['tasks_list'].pop(task_id)
             if task_id < len(session['tasks_list']):
-                task_to_move = session['tasks_list'][task_id]
-                session['tasks_list'].pop(task_id)
                 session['tasks_list'].insert(task_id+1, task_to_move)
-                session.modified = True
+            else:
+                session['tasks_list'].insert(0, task_to_move)
+            session.modified = True
             return redirect(url_for('home'))
         elif action == 'edit':
             task_id = int(request.form.get('task_id'))
@@ -214,7 +223,13 @@ def home():
             session.modified = True
             return redirect(url_for('home'))
 
-        if edit_form.validate_on_submit():
+        if edit_list.validate_on_submit() and form_id == 'edit_list':
+            session['style'] = request.form.get('styleOption')
+            session['font'] = request.form.get('fontOption')
+            session.modified = True
+            return redirect(url_for('home'))
+
+        if edit_form.validate_on_submit() and form_id == 'edit_form':
             new_task_color = request.form.get('taskColor')
             is_crossed_through = session['tasks_list'][session['edited_task_id']][2]
             changed_task = [edit_form.edited_task.data, new_task_color, is_crossed_through]
@@ -224,7 +239,7 @@ def home():
             session.modified = True
             return redirect(url_for('home'))
 
-        if add_form.validate_on_submit():
+        if add_form.validate_on_submit() and form_id == 'add_form':
             task_color = request.form.get('taskColor')
             if not task_color:
                 task_color = 'dark'
@@ -232,7 +247,7 @@ def home():
             session.modified = True
             return redirect(url_for('home'))
 
-        if checkbox_form.validate_on_submit():
+        if checkbox_form.validate_on_submit() and form_id == 'checkbox_form':
             checkbox_index = request.form.get('checkbox_hidden')
 
             if session['tasks_list'][int(checkbox_index)][2]:
@@ -241,20 +256,25 @@ def home():
                 session['tasks_list'][int(checkbox_index)][2] = True
             session.modified = True
 
-            # TUTAJ DODAJ, JAK checkbox_index < tylu ile sie mieści na stronie bez scrollowania, to żeby redirectowało
+            # TUTAJ DODAJ, JAK checkbox_index < tylu ile sie mieści na stronie bez scrollowania (zmierz mniej więcej len
+            # kilku pierwszych tasków?), to żeby redirectowało
             # do głównej a nie do elementu
 
             view_element = f'#{checkbox_index}'
             return redirect(url_for('home') + view_element)
+
     edited_task_data = session.pop('edited_task_data', False)
     return render_template('index.html',
                            csrf_token=csrf_token,
                            edited_task_data=edited_task_data,
                            add_form=add_form,
                            edit_form=edit_form,
+                           edit_list=edit_list,
                            checkbox_form=checkbox_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
+                           style=session['style'],
+                           font=session['font']
                            )
 
 
@@ -603,5 +623,4 @@ if __name__ == '__main__':
 #  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
 #  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
 #  24. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
-#  19. funkcje z wysyłaniem maili powinny być w nowej zakładce?
 #  20. configure your to-do list - czcionka, tło

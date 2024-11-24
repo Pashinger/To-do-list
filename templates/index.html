@@ -8,7 +8,6 @@
         <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input type="hidden" id="task-id-input" name="task_id" value="">
-
           <div class="modal-body">
             <button class="btn border-0 focus-ring focus-ring-secondary rounded-4"
                     name="action"
@@ -50,12 +49,109 @@
             </button>
           </div>
       </form>
-
     </div>
   </div>
 </div>
 
 
+<div class="modal fade" id="EditOptions" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog border border-dark rounded-3" style="max-width: 800px;">
+    <div class="modal-content">
+      <form method="POST">
+      <input type="hidden" name="form_id" value="edit_list">
+      {{ edit_list.hidden_tag() }}
+      <div class="modal-header">
+        <h1 class="modal-title text-center w-100 fs-5" id="exampleModalLabel">Choose style</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="form-floating d-flex justify-content-center">
+              <div class="row text-center">
+                <div class="col">
+                  <img src="static/images/blank.jpg" alt="plain style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
+                  <div class="form-check">
+                    {% if style == 'plain' %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="plain" checked>
+                    <label class="form-check-label">plain</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="plain">
+                    <label class="form-check-label">plain</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <img src="static/images/retro.png" alt="retro style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
+                  <div class="form-check">
+                    {% if style == 'retro' %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="retro" checked>
+                    <label class="form-check-label">retro</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="retro">
+                    <label class="form-check-label">retro</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <img src="static/images/notebook.jpg" alt="notebook" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
+                  <div class="form-check">
+                    {% if style == 'notebook' %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="notebook" checked>
+                    <label class="form-check-label">notebook</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="styleOption" value="notebook">
+                    <label class="form-check-label">notebook</label>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+          </div>
+          <hr>
+          <div class="form-floating d-flex justify-content-center">
+              <div class="row text-center">
+                <div class="col">
+                  <div class="form-check">
+                    {% if font == 'times' %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="times" checked>
+                    <label class="form-check-label font-times">Times New Roman</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="times">
+                    <label class="form-check-label font-times">Times New Roman</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-check">
+                    {% if font == 'cour' %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="cour" checked>
+                    <label class="form-check-label font-courier">Courier New</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="cour">
+                    <label class="form-check-label font-courier">Courier New</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-check">
+                    {% if font == 'segoesc' %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="segoesc" checked>
+                    <label class="form-check-label font-segoe">Segoe Script</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="fontOption" value="segoesc">
+                    <label class="form-check-label font-segoe">Segoe Script</label>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          {{ edit_list.options_submit(class="btn btn-dark") }}
+        <a href="{{ url_for('home') }}" class="btn btn-dark" data-bs-dismiss="modal">Close</a>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
 <div class="d-flex flex-column flex-row p-5 gap-4 align-items-center justify-content-center col-md-12">
@@ -92,6 +188,7 @@
       {% for task in tasks_list %}
       <div class="list-group-item d-flex gap-3">
         <form method="POST">
+          <input type="hidden" name="form_id" value="checkbox_form">
           {{ checkbox_form.hidden_tag() }}
           <input type="hidden" name="checkbox_hidden" value="{{ loop.index0 }}">
           {% if task[2] %}
@@ -123,6 +220,7 @@
 
     {% if edited_task_data %}
     <form method="POST" class="list-group-item d-flex gap-3 bg-body-secondary">
+      <input type="hidden" name="form_id" value="edit_form">
       {{ edit_form.hidden_tag() }}
       <div class="dropdown align-middle" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Choose text color" style="padding-top: 12px;">
           <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -174,6 +272,7 @@
     </form>
     {% else %}
     <form method="POST" class="list-group-item d-flex gap-3 bg-body-secondary">
+      <input type="hidden" name="form_id" value="add_form">
       {{ add_form.hidden_tag() }}
       <div class="dropdown align-middle" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Choose text color" style="padding-top: 12px;">
           <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -197,26 +296,6 @@
       </div>
     </form>
     {% endif %}
-  </div>
-</div>
-
-<div class="modal fade" id="EditOptions" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title text-center w-100 fs-5" id="exampleModalLabel">Configure your to-do list</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form method="POST">
-      <div class="modal-body">
-          <div class="form-floating d-flex justify-content-center">
-          </div>
-      </div>
-      <div class="modal-footer">
-        <a href="{{ url_for('home') }}" class="btn btn-dark" data-bs-dismiss="modal">Close</a>
-      </div>
-      </form>
-    </div>
   </div>
 </div>
 
