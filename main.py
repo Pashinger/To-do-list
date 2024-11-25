@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, UTC, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
+from pdf_maker import create_task_image
 
 app = Flask(__name__)
 
@@ -164,7 +165,7 @@ def home():
     if 'tasks_list' not in session:
         session['tasks_list'] = []
     if 'list_name' not in session:
-        date_today = date.today().strftime("%d/%m/%Y")
+        date_today = date.today().strftime("%d.%m.%Y")
         if current_user.is_authenticated:
             session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
         else:
@@ -186,10 +187,13 @@ def home():
                 return redirect(url_for('user_account'))
         #     tu dodaj next?
         elif action == 'new':
-            date_today = date.today().strftime("%d/%m/%Y")
+            date_today = date.today().strftime("%d.%m.%Y")
             session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
             session['tasks_list'] = []
             session.modified = True
+            return redirect(url_for('home'))
+        elif action == 'download':
+            create_task_image(chosen_style=session['style'], list_font=session['font'], tasks_list=session['tasks_list'])
             return redirect(url_for('home'))
         elif action == 'move_up':
             task_id = int(request.form.get('task_id'))
@@ -285,7 +289,7 @@ def user_account():
         flash('Log in or create an account to access your lists', 'info')
         return redirect(url_for('account_login'))
     else:
-        # dodaj też listę z listami to do usera
+        # dodaj też listę z listami to do usera z db
         # dodaj przycisk, gdzie je można ściągnąć lub wysłać na maila/google calendar
         return render_template('user.html')
 
@@ -623,4 +627,4 @@ if __name__ == '__main__':
 #  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
 #  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
 #  24. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
-#  20. configure your to-do list - czcionka, tło
+#  21. gdy user ściąga listę, może ją ściągnąć jako png, pdf lub wysłać na maila jako pdf - wyskoczy modal?

@@ -80,7 +80,7 @@
                   </div>
                 </div>
                 <div class="col">
-                  <img src="static/images/retro.png" alt="retro style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
+                  <img src="static/images/retro.jpg" alt="retro style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
                   <div class="form-check">
                     {% if style == 'retro' %}
                     <input class="form-check-input" type="radio" name="styleOption" value="retro" checked>
@@ -145,7 +145,7 @@
           </div>
       </div>
       <div class="modal-footer">
-          {{ edit_list.options_submit(class="btn btn-dark") }}
+        {{ edit_list.options_submit(class="btn btn-dark") }}
         <a href="{{ url_for('home') }}" class="btn btn-dark" data-bs-dismiss="modal">Close</a>
       </div>
       </form>
@@ -167,6 +167,14 @@
               </svg>
             </button>
         </form>
+        <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit options">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#EditOptions" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+              </svg>
+            </button>
+        </form>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="submit" name="action" value="new" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
@@ -176,11 +184,12 @@
               </svg>
             </button>
         </form>
-        <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit options">
+        <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#EditOptions" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+            <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="submit" name="action" value="download" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Download this list" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+                <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
               </svg>
             </button>
         </form>
