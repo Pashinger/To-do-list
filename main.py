@@ -166,10 +166,8 @@ def home():
         session['tasks_list'] = []
     if 'list_name' not in session:
         date_today = date.today().strftime("%d.%m.%Y")
-        if current_user.is_authenticated:
-            session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
-        else:
-            session['list_name'] = f'My to-do list {date_today}'
+        session['list_name'] = f'My to-do list {date_today}'
+        session['title'] = 'with_date'
     if 'style' not in session:
         session['style'] = 'plain'
     if 'font' not in session:
@@ -188,7 +186,8 @@ def home():
         #     tu dodaj next?
         elif action == 'new':
             date_today = date.today().strftime("%d.%m.%Y")
-            session['list_name'] = f'{current_user.username}\'s to-do list {date_today}'
+            session['list_name'] = f'My to-do list {date_today}'
+            session['title'] = 'with_date'
             session['tasks_list'] = []
             session.modified = True
             return redirect(url_for('home'))
@@ -230,6 +229,14 @@ def home():
         if edit_list.validate_on_submit() and form_id == 'edit_list':
             session['style'] = request.form.get('styleOption')
             session['font'] = request.form.get('fontOption')
+            session['title'] = request.form.get('titleOption')
+            if session['title'] == 'with_date':
+                date_today = date.today().strftime("%d.%m.%Y")
+                session['list_name'] = f'My to-do list {date_today}'
+            elif session['title'] == 'no_date':
+                session['list_name'] = 'My to-do list'
+            elif session['title'] == 'no_title':
+                session['list_name'] = ''
             session.modified = True
             return redirect(url_for('home'))
 
@@ -277,6 +284,7 @@ def home():
                            checkbox_form=checkbox_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
+                           title=session['title'],
                            style=session['style'],
                            font=session['font']
                            )

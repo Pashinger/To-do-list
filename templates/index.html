@@ -65,6 +65,49 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+
+          <div class="form-floating d-flex justify-content-center">
+              <div class="row text-center">
+                <div class="col">
+                  <img src="static/images/title_date.jpg" alt="title with date" class="img-thumbnail border-0" style="max-width: 180px; max-height: 180px;">
+                  <div class="form-check">
+                    {% if title == 'with_date' %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="with_date" checked>
+                    <label class="form-check-label">title with date</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="with_date">
+                    <label class="form-check-label">title with date</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <img src="static/images/title_nodate.jpg" alt="title without date" class="img-thumbnail border-0" style="max-width: 180px; max-height: 180px;">
+                  <div class="form-check">
+                    {% if title == 'no_date' %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="no_date" checked>
+                    <label class="form-check-label">title without date</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="no_date">
+                    <label class="form-check-label">title without date</label>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col">
+                  <img src="static/images/title_notitle.jpg" alt="hide title" class="img-thumbnail border-0" style="max-width: 180px; max-height: 180px;">
+                  <div class="form-check">
+                    {% if title == 'no_title' %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="no_title" checked>
+                    <label class="form-check-label">hide title</label>
+                    {% else %}
+                    <input class="form-check-input" type="radio" name="titleOption" value="no_title">
+                    <label class="form-check-label">hide title</label>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+          </div>
+          <hr>
+
           <div class="form-floating d-flex justify-content-center">
               <div class="row text-center">
                 <div class="col">
