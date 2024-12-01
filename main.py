@@ -1,8 +1,8 @@
 import os
-from flask import Flask, render_template, flash, redirect, url_for, request, session, current_app
+from flask import Flask, Response, render_template, flash, redirect, url_for, request, session, current_app, send_file
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
-    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList, DownloadListForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
 from pdf_maker import create_task_image
+
 
 app = Flask(__name__)
 
@@ -161,6 +162,7 @@ def home():
     edit_form = EditTask()
     edit_list = EditList()
     checkbox_form = CheckboxForm()
+    download_form = DownloadListForm()
 
     if 'tasks_list' not in session:
         session['tasks_list'] = []
@@ -182,17 +184,13 @@ def home():
                 # tu daj link we flash message jak klikniesz your lists to wlacza sie  user_account
                 flash('The list has been successfully saved. Access it in \'Your lists\'', 'info')
             else:
-                return redirect(url_for('user_account'))
-        #     tu dodaj next?
+                return redirect(url_for('account_login'))
         elif action == 'new':
             date_today = date.today().strftime("%d.%m.%Y")
             session['list_name'] = f'My to-do list {date_today}'
             session['title'] = 'with_date'
             session['tasks_list'] = []
             session.modified = True
-            return redirect(url_for('home'))
-        elif action == 'download':
-            create_task_image(chosen_style=session['style'], list_font=session['font'], tasks_list=session['tasks_list'])
             return redirect(url_for('home'))
         elif action == 'move_up':
             task_id = int(request.form.get('task_id'))
@@ -258,6 +256,26 @@ def home():
             session.modified = True
             return redirect(url_for('home'))
 
+        if download_form.validate_on_submit() and form_id == 'download_form':
+            chosen_format = request.form.get('downloadOption')
+            mimetype = 'image'
+            if chosen_format == 'pdf':
+                mimetype = 'application'
+            if current_user.is_authenticated:
+                list_name = f'{current_user.username}\'s to-do list.{chosen_format}'
+            else:
+                list_name = f'{session["list_name"]}.{chosen_format}'
+            list_image_stream = create_task_image(chosen_format=chosen_format,
+                                                  chosen_style=session['style'],
+                                                  list_font=session['font'],
+                                                  tasks_list=session['tasks_list'])
+
+            return Response(
+                list_image_stream,
+                mimetype=f'{mimetype}/{chosen_format}',
+                headers={'Content-Disposition': f'attachment;filename={list_name}'}
+            )
+
         if checkbox_form.validate_on_submit() and form_id == 'checkbox_form':
             checkbox_index = request.form.get('checkbox_hidden')
 
@@ -282,6 +300,7 @@ def home():
                            edit_form=edit_form,
                            edit_list=edit_list,
                            checkbox_form=checkbox_form,
+                           download_form=download_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
                            title=session['title'],
@@ -571,6 +590,16 @@ def delete_account():
             flash('Pass recaptcha to delete your account', 'info')
             return redirect(url_for('delete_account'))
     return render_template('delete_account.html', csrf_token=csrf_token, form=form)
+
+
+# Handle downloading files
+@app.route('/download')
+def download():
+    list_to_download = 'static/images/error.png'
+    list_to_download_name = 'beagle pies to fejnowergowaty jest'
+    return send_file(list_to_download, download_name=list_to_download_name, as_attachment=True)
+
+    # return send_file(BytesIO(upload.data), download_name=upload.filename, as_attachment=True )
 
 
 # Motivational quotes page from API

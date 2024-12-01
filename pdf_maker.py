@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-
+from io import BytesIO
 # example_list = [['e', 'warning', False], ['s                sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss', 'dark', False], ['na siwta sobie posprzątamy i bedzie bardzo milo a potem bedziemy mialac i goladac paddingtona i krol', 'secondary', False], ['NA SIWTA SOBIE POSPRZĄTAMY I BEDZIE BARDZO MILO A POTEM BEDZIEMY MIALAC I GOLADAC PADDINGTONA I KROL', 'primary', False], ['nuroślaner', 'secondary', False], ['BORIANDER', 'warning', False], ['BORIANDER', 'warning', False], ['biglander', 'primary', False], ['kojander', 'danger', False], ['zor', 'success', False], ['BORIANDER2', 'dark', False]]
 
 
@@ -57,7 +57,9 @@ list_styles = {
 
 
 # Render tasks on an image
-def create_task_image(chosen_style, list_font, tasks_list):
+def create_task_image(chosen_format, chosen_style, list_font, tasks_list):
+    if chosen_format == 'jpg':
+        chosen_format = 'jpeg'
     list_style = list_styles[chosen_style]
     tasks_wrapped = []
     corresponding_colors = []
@@ -110,6 +112,7 @@ def create_task_image(chosen_style, list_font, tasks_list):
                 y_position += list_style['spacing_long']
         y_position += list_style['spacing_long']
         color_index += 1
-
-    # tu będzie return robiony i będzie można ściągnąc obrazek w templacie lub wysłać na maila
-    img.save("C:/Users/hp-pc/Downloads/to-do-list.png")
+    image_stream = BytesIO()
+    img.save(image_stream, chosen_format.upper())
+    image_stream.seek(0)
+    return image_stream
