@@ -1,7 +1,7 @@
 import os
 from flask import Flask, Response, render_template, flash, redirect, url_for, request, session, current_app, send_file
 from flask_bootstrap import Bootstrap
-from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm,\
+from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm, \
     SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList, DownloadListForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
@@ -13,7 +13,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
 from pdf_maker import create_task_image
-
+from markupsafe import Markup
+import json
 
 app = Flask(__name__)
 
@@ -141,6 +142,7 @@ class Users(UserMixin, db.Model):
     user_email = db.Column(db.String(120), nullable=False, unique=True)
     user_password = db.Column(db.String(255), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.now(UTC))
+    user_lists = db.Column(db.JSON, default=[])
     token_last_sent = db.Column(db.DateTime, nullable=True)
     valid_token = db.Column(db.String(255))
 
@@ -180,9 +182,33 @@ def home():
         form_id = request.form.get('form_id')
         if action == 'save':
             if current_user.is_authenticated:
-                print('to będzie się sejwowało do bazy danych')
-                # tu daj link we flash message jak klikniesz your lists to wlacza sie  user_account
-                flash('The list has been successfully saved. Access it in \'Your lists\'', 'info')
+                user_account_link = url_for('user_account')
+                flash_message = Markup(f'The list has been successfully saved. Access it in '
+                                       f'<a href="{user_account_link}">Your lists</a>.')
+                flash(flash_message, 'info')
+
+                last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                current_to_do_dict = {'list_name': session['list_name'],
+                                      'style': session['style'],
+                                      'font': session['font'],
+                                      'tasks_list': session['tasks_list'],
+                                      'last_edited': last_edited
+                                      }
+                # nową bazę danych będzie dawał na 1 miejsce? a edytowane będą wysyłać z templata loop.index8 i tym
+                # sposobem będzie brane ich id!
+                #
+                user_to_update = db.session.get(Users, current_user.id)
+                list_data = json.loads(user_to_update.user_lists)
+                if len(list_data) > 9:
+                    flash('The maximum number of to-do lists has been reached! Delete unused to-do lists to save'
+                          ' a new one', 'info')
+                    return redirect(url_for('home'))
+                else:
+                    list_data.insert(0, current_to_do_dict)
+                    json_list_data = json.dumps(list_data)
+                    user_to_update.user_lists = json_list_data
+                    db.session.commit()
+                    return redirect(url_for('user_account'))
             else:
                 return redirect(url_for('account_login'))
         elif action == 'new':
@@ -197,7 +223,7 @@ def home():
             task_to_move = session['tasks_list'][task_id]
             session['tasks_list'].pop(task_id)
             if task_id > 0:
-                session['tasks_list'].insert(task_id-1, task_to_move)
+                session['tasks_list'].insert(task_id - 1, task_to_move)
             else:
                 session['tasks_list'].insert(len(session['tasks_list']), task_to_move)
             session.modified = True
@@ -207,7 +233,7 @@ def home():
             task_to_move = session['tasks_list'][task_id]
             session['tasks_list'].pop(task_id)
             if task_id < len(session['tasks_list']):
-                session['tasks_list'].insert(task_id+1, task_to_move)
+                session['tasks_list'].insert(task_id + 1, task_to_move)
             else:
                 session['tasks_list'].insert(0, task_to_move)
             session.modified = True
@@ -309,16 +335,32 @@ def home():
                            )
 
 
-# Manage account
+# Manage saved user lists
 @app.route('/user', methods=['GET', 'POST'])
 def user_account():
+    csrf_token = generate_csrf()
+
     if not current_user.is_authenticated:
         flash('Log in or create an account to access your lists', 'info')
         return redirect(url_for('account_login'))
     else:
-        # dodaj też listę z listami to do usera z db
-        # dodaj przycisk, gdzie je można ściągnąć lub wysłać na maila/google calendar
-        return render_template('user.html')
+        user_to_update = db.session.get(Users, current_user.id)
+        list_data = json.loads(user_to_update.user_lists)
+        # jak user kliknie w edit to wszystkie dane listy z bazy danych powinny się sciągnąć i wejść do session
+        # a później redirectować do strony głównej? Plus czy powinien się pojawić przycisk, żeby anulować zmiany i wrócić
+        # do robionej listy, która znowu będzie zapisana w session pod innymi nazwami?
+
+        if request.method == 'POST':
+            deleted_list_index = int(request.form.get('delete_list_index'))
+            if deleted_list_index is not None:
+                list_data.pop(deleted_list_index)
+                json_list_data = json.dumps(list_data)
+                user_to_update.user_lists = json_list_data
+                db.session.commit()
+                return redirect(url_for('user_account'))
+        return render_template('user.html',
+                               csrf_token=csrf_token,
+                               list_data=list_data)
 
 
 # Login to user account
@@ -656,12 +698,12 @@ def page_not_found(e):
 if __name__ == '__main__':
     app.run(debug=True)
 
-
 # todo:
-#  13. Obtain an SSL Certificate, use https, http, lax?
-#  16 user page ma wyświetlać listy i dawać opcje wysłania na maila/ściągnięcia
-#  17. listy to-do: baza danych do nich, relational db
-#  20. dodaj komentarze/opisy do funkcji i klas + deklaracje typów
-#  21. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
-#  24. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
-#  21. gdy user ściąga listę, może ją ściągnąć jako png, pdf lub wysłać na maila jako pdf - wyskoczy modal?
+#  0. zapisywanie list - wyskakuje okienko gdzie można dać im nazwę?
+#  1. listy to-do: baza danych do nich, relational db - jakie typy, jak ją zmialać
+#  2. wyświetlają się listy w user, można je ściągnąć na 3 sposoby lub wysłać na maila
+#  3. wysyłanie na maila z załącznikami
+#  4. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
+#  5. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
+#  6. Obtain an SSL Certificate, use https, http, lax?
+#  7. dodaj komentarze/opisy do funkcji i klas + deklaracje typów

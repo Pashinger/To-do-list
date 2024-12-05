@@ -289,7 +289,16 @@
         </form>
     </div>
       {% for task in tasks_list %}
-      <div class="list-group-item d-flex gap-3">
+      <div class="list-group-item d-flex gap-3"
+           data-bs-toggle="tooltip"
+           data-bs-trigger="hover"
+           data-bs-title="
+           <img src='static/images/pointer.jpg' alt='Pointing Hand Image'>
+           Click on a task to &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make changes"
+           data-bs-delay='{"show":1600,"hide":150}'
+           data-bs-html="true"
+           data-bs-placement="right"
+           data-bs-offset="0,55">
         <form method="POST">
           <input type="hidden" name="form_id" value="checkbox_form">
           {{ checkbox_form.hidden_tag() }}
