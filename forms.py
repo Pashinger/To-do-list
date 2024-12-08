@@ -17,6 +17,10 @@ class CreateAccountForm(FlaskForm):
     sign_up_submit = SubmitField('Create an account')
 
 
+class DiscardChanges(FlaskForm):
+    discard_changes_submit = SubmitField('You are editing your previously saved list! Click here if you want to discard these changes')
+
+
 class EditTask(FlaskForm):
     edited_task = StringField('Edit your task:', validators=[DataRequired(), Length(min=1, max=100)])
     edit_submit = SubmitField('Save')

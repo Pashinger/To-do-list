@@ -2,7 +2,7 @@ import os
 from flask import Flask, Response, render_template, flash, redirect, url_for, request, session, current_app, send_file
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm, \
-    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList, DownloadListForm
+    SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList, DownloadListForm, DiscardChanges
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import DatabaseError
@@ -182,6 +182,7 @@ def home():
     edit_list = EditList()
     checkbox_form = CheckboxForm()
     download_form = DownloadListForm()
+    discard_changes_form = DiscardChanges()
 
     if 'tasks_list' not in session:
         session['tasks_list'] = []
@@ -193,6 +194,8 @@ def home():
         session['style'] = 'plain'
     if 'font' not in session:
         session['font'] = 'times'
+    if 'edited_list_index' not in session:
+        session['edited_list_index'] = 'not_in_db'
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -202,6 +205,17 @@ def home():
                 if current_user.is_authenticated:
                     user_to_update = db.session.get(Users, current_user.id)
                     list_data = json.loads(user_to_update.user_lists)
+
+                        # DODAJ ZE DISABLED BTN JEST GDY EDYTUJESZ LISTE
+                        # jesli nie w bazie danych to czy nie będzie błędu?
+                    if session['edited_list_index'] != 'not_in_db':
+                        list_data.pop(session['edited_list_index'])
+                        date_today = date.today().strftime("%d.%m.%Y")
+                        session['list_name'] = f'My to-do list {date_today}'
+                        session['title'] = 'with_date'
+                        session['tasks_list'] = []
+                        session['edited_list_index'] = 'not_in_db'
+                        session.modified = True
                     if len(list_data) > 9:
                         flash('The maximum number of to-do lists has been reached! Delete unused to-do lists to save'
                               ' a new one', 'info')
@@ -328,6 +342,15 @@ def home():
             view_element = f'#{checkbox_index}'
             return redirect(url_for('home') + view_element)
 
+        if discard_changes_form.validate_on_submit() and form_id == 'discard_changes_form':
+            date_today = date.today().strftime("%d.%m.%Y")
+            session['list_name'] = f'My to-do list {date_today}'
+            session['title'] = 'with_date'
+            session['tasks_list'] = []
+            session['edited_list_index'] = 'not_in_db'
+            session.modified = True
+            return redirect(url_for('user_account'))
+
     edited_task_data = session.pop('edited_task_data', False)
     return render_template('index.html',
                            csrf_token=csrf_token,
@@ -337,11 +360,13 @@ def home():
                            edit_list=edit_list,
                            checkbox_form=checkbox_form,
                            download_form=download_form,
+                           discard_changes_form=discard_changes_form,
                            tasks_list=session['tasks_list'],
                            list_name=session['list_name'],
                            title=session['title'],
                            style=session['style'],
-                           font=session['font']
+                           font=session['font'],
+                           list_modified=session['edited_list_index']
                            )
 
 
@@ -360,10 +385,6 @@ def user_account():
     else:
         user = db.session.get(Users, current_user.id)
         list_data = json.loads(user.user_lists)
-        # jak user kliknie w edit to wszystkie dane listy z bazy danych powinny się sciągnąć i wejść do session
-        # a później redirectować do strony głównej? Plus czy powinien się pojawić przycisk, żeby anulować zmiany i wrócić
-        # do robionej listy, która znowu będzie zapisana w session pod innymi nazwami?
-
         # NIE DZIAŁA TYTUŁ W ŚCIĄGANEJ LIŚCIE - ROBI SIĘ PO PROSTU MY-TO-DO LIST
 
         if request.method == 'POST':
@@ -372,12 +393,13 @@ def user_account():
             edited_list_index = request.form.get('edit_list_index')
             if edited_list_index is not None:
                 edited_list = list_data[int(edited_list_index)]
-                # w save zmień w templacie na save changes to the user list
                 session['list_name'] = edited_list['list_name']
                 session['style'] = edited_list['style']
                 session['font'] = edited_list['font']
                 session['tasks_list'] = edited_list['tasks_list']
-                return redirect(url_for('home'), )
+                session['edited_list_index'] = int(edited_list_index)
+                session.modified = True
+                return redirect(url_for('home'))
             elif deleted_list_index is not None:
                 list_data.pop(int(deleted_list_index))
                 json_list_data = json.dumps(list_data)
@@ -396,11 +418,11 @@ def user_account():
                                      list_font=list_font,
                                      tasks_list=tasks_list,
                                      list_name=list_name)
-
         return render_template('user.html',
                                csrf_token=csrf_token,
                                download_form=download_form,
                                show_edit_modal=show_edit_modal,
+                               list_modified=session['edited_list_index'],
                                list_data=list_data)
 
 

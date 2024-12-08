@@ -143,11 +143,19 @@
                 </svg>
               </button>
             </form>
+            {% if list_modified == 'not_in_db' %}
             <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#DeleteList" data-index="{{ loop.index0 }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Delete this list" data-bs-offset="0, 15">
                   <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                 </svg>
             </button>
+            {% else %}
+            <button class="btn border-0 rounded-4" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-x-lg text-secondary" viewBox="0 0 16 16"  data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Deleting lists is disabled. Finish editing your list on the home page first" data-bs-offset="0, 15">
+                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                </svg>
+            </button>
+            {% endif %}
           </div>
         </div>
         <hr>
