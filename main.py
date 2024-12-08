@@ -13,7 +13,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
 from pdf_maker import create_task_image
-from markupsafe import Markup
 import json
 
 app = Flask(__name__)
@@ -126,6 +125,24 @@ def send_suggestions_confirmation(email, message):
     mail.send(msg_creator)
 
 
+def download_file(chosen_format, chosen_style, list_font, tasks_list, list_name):
+    # chosen_format = request.form.get('downloadOption')
+    mimetype = 'image'
+    if chosen_format == 'pdf':
+        mimetype = 'application'
+    list_name_full = f'{list_name}.{chosen_format}'
+    list_image_stream = create_task_image(chosen_format=chosen_format,
+                                          chosen_style=session['style'],
+                                          list_font=session['font'],
+                                          tasks_list=session['tasks_list'])
+
+    return Response(
+        list_image_stream,
+        mimetype=f'{mimetype}/{chosen_format}',
+        headers={'Content-Disposition': f'attachment;filename={list_name_full}'}
+    )
+
+
 # Setup user_loader callback
 @login_manager.user_loader
 def load_user(user_id):
@@ -181,36 +198,33 @@ def home():
         action = request.form.get('action')
         form_id = request.form.get('form_id')
         if action == 'save':
-            if current_user.is_authenticated:
-                user_account_link = url_for('user_account')
-                flash_message = Markup(f'The list has been successfully saved. Access it in '
-                                       f'<a href="{user_account_link}">Your lists</a>.')
-                flash(flash_message, 'info')
-
-                last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
-                current_to_do_dict = {'list_name': session['list_name'],
-                                      'style': session['style'],
-                                      'font': session['font'],
-                                      'tasks_list': session['tasks_list'],
-                                      'last_edited': last_edited
-                                      }
-                # nową bazę danych będzie dawał na 1 miejsce? a edytowane będą wysyłać z templata loop.index8 i tym
-                # sposobem będzie brane ich id!
-                #
-                user_to_update = db.session.get(Users, current_user.id)
-                list_data = json.loads(user_to_update.user_lists)
-                if len(list_data) > 9:
-                    flash('The maximum number of to-do lists has been reached! Delete unused to-do lists to save'
-                          ' a new one', 'info')
-                    return redirect(url_for('home'))
+            if len(session['tasks_list']) > 0:
+                if current_user.is_authenticated:
+                    user_to_update = db.session.get(Users, current_user.id)
+                    list_data = json.loads(user_to_update.user_lists)
+                    if len(list_data) > 9:
+                        flash('The maximum number of to-do lists has been reached! Delete unused to-do lists to save'
+                              ' a new one', 'info')
+                        return redirect(url_for('home'))
+                    else:
+                        last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                        current_to_do_dict = {'list_name': session['list_name'],
+                                              'style': session['style'],
+                                              'font': session['font'],
+                                              'tasks_list': session['tasks_list'],
+                                              'last_edited': last_edited
+                                              }
+                        list_data.insert(0, current_to_do_dict)
+                        json_list_data = json.dumps(list_data)
+                        user_to_update.user_lists = json_list_data
+                        db.session.commit()
+                        flash('The list has been successfully saved!', 'info')
+                        return redirect(url_for('user_account'))
                 else:
-                    list_data.insert(0, current_to_do_dict)
-                    json_list_data = json.dumps(list_data)
-                    user_to_update.user_lists = json_list_data
-                    db.session.commit()
-                    return redirect(url_for('user_account'))
+                    return redirect(url_for('account_login'))
             else:
-                return redirect(url_for('account_login'))
+                flash('This to-do list is empty! Add tasks in order to save it', 'info')
+                return redirect(url_for('home'))
         elif action == 'new':
             date_today = date.today().strftime("%d.%m.%Y")
             session['list_name'] = f'My to-do list {date_today}'
@@ -284,23 +298,19 @@ def home():
 
         if download_form.validate_on_submit() and form_id == 'download_form':
             chosen_format = request.form.get('downloadOption')
-            mimetype = 'image'
-            if chosen_format == 'pdf':
-                mimetype = 'application'
+            chosen_style = session['style']
+            list_font = session['font']
+            tasks_list = session['tasks_list']
             if current_user.is_authenticated:
-                list_name = f'{current_user.username}\'s to-do list.{chosen_format}'
+                list_name = f'{current_user.username}\'s to-do list'
             else:
-                list_name = f'{session["list_name"]}.{chosen_format}'
-            list_image_stream = create_task_image(chosen_format=chosen_format,
-                                                  chosen_style=session['style'],
-                                                  list_font=session['font'],
-                                                  tasks_list=session['tasks_list'])
+                list_name = f'{session["list_name"]}'
 
-            return Response(
-                list_image_stream,
-                mimetype=f'{mimetype}/{chosen_format}',
-                headers={'Content-Disposition': f'attachment;filename={list_name}'}
-            )
+            return download_file(chosen_format=chosen_format,
+                                 chosen_style=chosen_style,
+                                 list_font=list_font,
+                                 tasks_list=tasks_list,
+                                 list_name=list_name)
 
         if checkbox_form.validate_on_submit() and form_id == 'checkbox_form':
             checkbox_index = request.form.get('checkbox_hidden')
@@ -339,27 +349,58 @@ def home():
 @app.route('/user', methods=['GET', 'POST'])
 def user_account():
     csrf_token = generate_csrf()
+    download_form = DownloadListForm()
+    show_edit_modal = False
+    if len(session['tasks_list']) > 0:
+        show_edit_modal = True
 
     if not current_user.is_authenticated:
         flash('Log in or create an account to access your lists', 'info')
         return redirect(url_for('account_login'))
     else:
-        user_to_update = db.session.get(Users, current_user.id)
-        list_data = json.loads(user_to_update.user_lists)
+        user = db.session.get(Users, current_user.id)
+        list_data = json.loads(user.user_lists)
         # jak user kliknie w edit to wszystkie dane listy z bazy danych powinny się sciągnąć i wejść do session
         # a później redirectować do strony głównej? Plus czy powinien się pojawić przycisk, żeby anulować zmiany i wrócić
         # do robionej listy, która znowu będzie zapisana w session pod innymi nazwami?
 
+        # NIE DZIAŁA TYTUŁ W ŚCIĄGANEJ LIŚCIE - ROBI SIĘ PO PROSTU MY-TO-DO LIST
+
         if request.method == 'POST':
-            deleted_list_index = int(request.form.get('delete_list_index'))
-            if deleted_list_index is not None:
-                list_data.pop(deleted_list_index)
+            download_list_index = request.form.get('download_list_index')
+            deleted_list_index = request.form.get('delete_list_index')
+            edited_list_index = request.form.get('edit_list_index')
+            if edited_list_index is not None:
+                edited_list = list_data[int(edited_list_index)]
+                # w save zmień w templacie na save changes to the user list
+                session['list_name'] = edited_list['list_name']
+                session['style'] = edited_list['style']
+                session['font'] = edited_list['font']
+                session['tasks_list'] = edited_list['tasks_list']
+                return redirect(url_for('home'), )
+            elif deleted_list_index is not None:
+                list_data.pop(int(deleted_list_index))
                 json_list_data = json.dumps(list_data)
-                user_to_update.user_lists = json_list_data
+                user.user_lists = json_list_data
                 db.session.commit()
                 return redirect(url_for('user_account'))
+            elif download_form.validate_on_submit():
+                chosen_format = request.form.get('downloadOption')
+                downloaded_list = list_data[int(download_list_index)]
+                chosen_style = downloaded_list['style']
+                list_font = downloaded_list['font']
+                tasks_list = downloaded_list['tasks_list']
+                list_name = f'{current_user.username}\'s to-do list'
+                return download_file(chosen_format=chosen_format,
+                                     chosen_style=chosen_style,
+                                     list_font=list_font,
+                                     tasks_list=tasks_list,
+                                     list_name=list_name)
+
         return render_template('user.html',
                                csrf_token=csrf_token,
+                               download_form=download_form,
+                               show_edit_modal=show_edit_modal,
                                list_data=list_data)
 
 
@@ -699,10 +740,7 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 # todo:
-#  0. zapisywanie list - wyskakuje okienko gdzie można dać im nazwę?
-#  1. listy to-do: baza danych do nich, relational db - jakie typy, jak ją zmialać
-#  2. wyświetlają się listy w user, można je ściągnąć na 3 sposoby lub wysłać na maila
-#  3. wysyłanie na maila z załącznikami
+#  2. wyświetlają się listy w user, można je ściągnąć na 3 sposoby oraz edytować
 #  4. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
 #  5. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
 #  6. Obtain an SSL Certificate, use https, http, lax?
