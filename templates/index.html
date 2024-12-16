@@ -108,7 +108,7 @@
           <div class="form-floating d-flex justify-content-center">
               <div class="row text-center">
                 <div class="col">
-                  <img src="static/images/blank.jpg" alt="plain style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
+                  <img src="static/images/plain.jpg" alt="plain style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
                   <div class="form-check">
                     {% if style == 'plain' %}
                     <input class="form-check-input" type="radio" name="styleOption" value="plain" checked>
@@ -250,7 +250,7 @@
 <div class="d-flex flex-column flex-row p-5 gap-4 align-items-center justify-content-center col-md-12">
   <div class="list-group col-8 p-5 m-5 bg-body-tertiary border border-dark border-2">
     <div class="d-flex bg-body-secondary p-3 border border-bottom-0 rounded-top align-items-center position-relative">
-        <h2 class="ps-4 w-100">{{ list_name }}</h2>
+       <h2 class="ps-4 w-100">{{ list_name }}</h2>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             {% if list_modified == 'not_in_db' %}

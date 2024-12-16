@@ -1,25 +1,25 @@
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-# example_list = [['e', 'warning', False], ['s                sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss', 'dark', False], ['na siwta sobie posprzątamy i bedzie bardzo milo a potem bedziemy mialac i goladac paddingtona i krol', 'secondary', False], ['NA SIWTA SOBIE POSPRZĄTAMY I BEDZIE BARDZO MILO A POTEM BEDZIEMY MIALAC I GOLADAC PADDINGTONA I KROL', 'primary', False], ['nuroślaner', 'secondary', False], ['BORIANDER', 'warning', False], ['BORIANDER', 'warning', False], ['biglander', 'primary', False], ['kojander', 'danger', False], ['zor', 'success', False], ['BORIANDER2', 'dark', False]]
 
 
-def convert_colors(list_to_convert):
-    converted_list = []
-    for color in list_to_convert:
-        if color == 'success':
-            color = 'green'
-        elif color == 'warning':
-            color = 'yellow'
-        elif color == 'primary':
-            color = 'blue'
-        elif color == 'danger':
-            color = 'red'
-        elif color == 'secondary':
-            color = 'gray'
-        elif color == 'dark':
-            color = 'black'
-        converted_list.append(color)
-    return converted_list
+def convert_colors(list_to_convert: list[str]) -> list[str]:
+    """Convert Bootstrap color names to their corresponding standard color names.
+
+    Args:
+        list_to_convert (list[str]): A list of color names in Bootstrap style.
+
+    Returns:
+        list[str]: A list of corresponding standard color names.
+    """
+    color_map = {
+        'success': 'green',
+        'warning': 'yellow',
+        'primary': 'blue',
+        'danger': 'red',
+        'secondary': 'gray',
+        'dark': 'black'
+    }
+    return [color_map[f'{color}'] for color in list_to_convert]
 
 
 list_styles = {
@@ -56,23 +56,43 @@ list_styles = {
 }
 
 
-# Render tasks on an image
-def create_task_image(chosen_format, chosen_style, list_font, tasks_list):
+def create_task_image(
+        chosen_format: str,
+        chosen_style: str,
+        list_font: str,
+        tasks_list: list[tuple[str, str, bool]],
+        chosen_title: str
+) -> BytesIO:
+    """Render a to-do list on an image and return the image as a stream.
+
+    Args:
+        chosen_format (str): The image format (e.g., 'jpg', 'png').
+        chosen_style (str): The style of the image (e.g., 'plain', 'notebook', 'retro').
+        list_font (str): The font file name (without extension) for the text.
+        tasks_list (list[tuple[str, str]]): A list of tasks where each task is
+                                            a tuple (text, color).
+        chosen_title (str): The title to be displayed on the image.
+
+    Returns:
+        BytesIO: The generated image as a binary stream.
+    """
     if chosen_format == 'jpg':
         chosen_format = 'jpeg'
     list_style = list_styles[chosen_style]
     tasks_wrapped = []
     corresponding_colors = []
     y_position = list_style['text_y']
+
+    # Prepare the canvas and fonts
     img = Image.open(list_style['path'])
     draw = ImageDraw.Draw(img)
-
     title_font = ImageFont.truetype(f'static/fonts/{list_font}.ttf', 40)
     task_font = ImageFont.truetype(f'static/fonts/{list_font}.ttf', 26)
 
-    title_text = 'My To-Do List'
-    draw.text((list_style['title_x'], list_style['title_y']), title_text, fill='black', font=title_font)
+    # Draw the title
+    draw.text((list_style['title_x'], list_style['title_y']), chosen_title, fill='black', font=title_font)
 
+    # Handle wrapping of tasks' text and their color conversion
     for item in tasks_list:
         color = item[1]
         corresponding_colors.append(color)
@@ -99,6 +119,7 @@ def create_task_image(chosen_format, chosen_style, list_font, tasks_list):
         wrapped_item.append(current_line)
         tasks_wrapped.append(wrapped_item)
 
+    # Draw tasks
     color_index = 0
     converted_corresponding_colors = convert_colors(corresponding_colors)
     for line in tasks_wrapped:
@@ -112,6 +133,8 @@ def create_task_image(chosen_format, chosen_style, list_font, tasks_list):
                 y_position += list_style['spacing_long']
         y_position += list_style['spacing_long']
         color_index += 1
+
+    # Save the image to a stream
     image_stream = BytesIO()
     img.save(image_stream, chosen_format.upper())
     image_stream.seek(0)

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, Response, render_template, flash, redirect, url_for, request, session, current_app, send_file
+from flask import Flask, Response, render_template, flash, redirect, url_for, request, session, current_app
 from flask_bootstrap import Bootstrap
 from forms import LoginForm, CreateAccountForm, UpdatePasswordForm, UpdateUsernameForm, ForgotLoginForm, \
     SuggestFeatureForm, ToDoForm, DeleteAccountForm, CheckboxForm, EditTask, EditList, DownloadListForm, DiscardChanges
@@ -15,6 +15,7 @@ from zenquotes_api import get_quote
 from pdf_maker import create_task_image
 import json
 
+# Initialize the Flask application
 app = Flask(__name__)
 
 # Add MySQL database
@@ -54,13 +55,21 @@ login_manager.login_message = 'You need to log in to access user settings'
 
 
 @app.before_request
-def make_session_permanent():
+def make_session_permanent() -> None:
+    """Set session to permanent with a lifetime of 7 days."""
     session.permanent = True
     app.permanent_session_lifetime = timedelta(days=7)
 
 
-# Generate reset token
-def generate_reset_token(user_email):
+def generate_reset_token(user_email: str) -> tuple[str, datetime]:
+    """Generate a token for password reset using a user's email address.
+
+    Args:
+        user_email (str): Email address of the user requesting a password reset.
+
+    Returns:
+        tuple[str, datetime]: The token and its issuance timestamp.
+    """
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     token = serializer.dumps(user_email, salt=app.config['SECURITY_PASSWORD_SALT'])
     token_issued_at = (serializer.loads(token,
@@ -69,8 +78,15 @@ def generate_reset_token(user_email):
     return token, token_issued_at
 
 
-# Send email with password reset
-def send_password_reset(user_email):
+def send_password_reset(user_email: str) -> datetime:
+    """Send an email with a password reset link to the user.
+
+    Args:
+        user_email (str): The recipient's email address.
+
+    Returns:
+        datetime: Timestamp when the token was generated.
+    """
     reset_token_items = generate_reset_token(user_email)
     reset_token = reset_token_items[0]
     reset_url = url_for('reset_password', token=reset_token, _external=True)
@@ -83,8 +99,13 @@ def send_password_reset(user_email):
     return reset_token_items[1]
 
 
-# Send email with username
-def send_username(user_email, username):
+def send_username(user_email: str, username: str) -> None:
+    """Send an email to a user with their username information.
+
+    Args:
+        user_email (str): The recipient's email address.
+        username (str): The user's username.
+    """
     login_url = url_for('account_login', _external=True)
     msg = Message('Your username - Make your own to-do list',
                   sender=app.config['MAIL_USERNAME'],
@@ -98,9 +119,14 @@ def send_username(user_email, username):
     mail.send(msg)
 
 
-# Send confirmation email with suggested features
-def send_suggestions_confirmation(email, message):
-    # send email to commenter
+def send_suggestions_confirmation(email: str, message: str) -> None:
+    """Send a confirmation email to the user and forward their suggestions to the developer.
+
+    Args:
+        email (str): The email address of the user submitting the suggestions.
+        message (str): The message or suggestions provided by the user.
+    """
+    # Send confirmation email with suggested features
     msg_commenter = Message('Your suggestions have been submitted - we hear you!',
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email])
@@ -117,7 +143,7 @@ def send_suggestions_confirmation(email, message):
         <p>If you did not make the request, simply ignore this email.</p>
     '''
     mail.send(msg_commenter)
-    # send suggestions to the developer
+    # Send user's suggestions to the developer
     msg_creator = Message(f'Suggestions from user: {email}',
                           sender=app.config['MAIL_USERNAME'],
                           recipients=[app.config['MAIL_USERNAME']])
@@ -125,17 +151,40 @@ def send_suggestions_confirmation(email, message):
     mail.send(msg_creator)
 
 
-def download_file(chosen_format, chosen_style, list_font, tasks_list, list_name):
-    # chosen_format = request.form.get('downloadOption')
+def download_file(
+        chosen_format: str,
+        chosen_style: str,
+        list_font: str,
+        tasks_list: list[tuple[str, str, bool]],
+        list_name: str,
+        chosen_title: str
+) -> Response:
+    """Generate and return a downloadable file (an image or a PDF) based on the given parameters.
+
+    Args:
+        chosen_format (str): The format of the file to be downloaded ('image' or 'pdf').
+        chosen_style (str): The style to apply to the file ('plain', 'retro' or 'notebook').
+        list_font (str): The font to use for the text in the file ('Times New Roman',
+                         'Courier New' or 'Segoe Script').
+        tasks_list (list[tuple[str, str, bool]]): A list of tasks to include in the file.
+        list_name (str): The base name of the file (without extension).
+        chosen_title (str): The title of the to-do list to display in the generated file.
+
+    Returns:
+        Response: A Flask Response object containing the file stream, with appropriate
+                  headers for downloading.
+    """
+
     mimetype = 'image'
     if chosen_format == 'pdf':
         mimetype = 'application'
     list_name_full = f'{list_name}.{chosen_format}'
     list_image_stream = create_task_image(chosen_format=chosen_format,
-                                          chosen_style=session['style'],
-                                          list_font=session['font'],
-                                          tasks_list=session['tasks_list'])
-
+                                          chosen_style=chosen_style,
+                                          list_font=list_font,
+                                          tasks_list=tasks_list,
+                                          chosen_title=chosen_title
+                                          )
     return Response(
         list_image_stream,
         mimetype=f'{mimetype}/{chosen_format}',
@@ -143,29 +192,28 @@ def download_file(chosen_format, chosen_style, list_font, tasks_list, list_name)
     )
 
 
-# Setup user_loader callback
-@login_manager.user_loader
-def load_user(user_id):
-    user = db.session.get(Users, user_id)
-    if user is None:
-        session.clear()
-    return user
-
-
-# Create model
 class Users(UserMixin, db.Model):
+    """A database model representing a user in the application.
+
+    Attributes:
+        id (int): The primary key for the user.
+        username (str): The username of the user (maximum 16 characters).
+        user_email (str): The email address of the user, unique across all users.
+        user_password (str): The hashed password of the user.
+        date_added (datetime): The date and time when the user was added to the database.
+        user_lists (list[Any]): A JSON field storing the user's lists.
+        token_last_sent (datetime | None): The timestamp of the last token sent
+                                           to the user, if any.
+        valid_token (str | None): A string representing the user's valid token, if any.
+    """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(16), nullable=False)
     user_email = db.Column(db.String(120), nullable=False, unique=True)
     user_password = db.Column(db.String(255), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.now(UTC))
-    user_lists = db.Column(db.JSON, default=[])
+    user_lists = db.Column(db.JSON, default='[]')
     token_last_sent = db.Column(db.DateTime, nullable=True)
     valid_token = db.Column(db.String(255))
-
-    # Allow objects to be identified by username
-    def __repr__(self):
-        return f'<Username {self.username}'
 
 
 # Create table schema in the database
@@ -173,9 +221,35 @@ with app.app_context():
     db.create_all()
 
 
-# Home page
+@login_manager.user_loader
+def load_user(user_id: int) -> Users | None:
+    """Load a user from the database for Flask-Login based on the given user ID.
+
+    Args:
+        user_id (int): The ID of the user to be loaded.
+
+    Returns:
+        Users | None: The user object if found, otherwise None. If the user
+                      is not found, the session is cleared.
+    """
+    user = db.session.get(Users, user_id)
+    if user is None:
+        session.clear()
+    return user
+
+
 @app.route('/', methods=['GET', 'POST'])
-def home():
+def home() -> Response | str:
+    """Render the home page, handle form submissions, and manage to-do lists.
+
+    This route handles various user actions, including creating, editing, saving,
+    and downloading to-do lists. It also manages session variables for the user's
+    current tasks and to-do list preferences.
+
+    Returns:
+        Response | str: A rendered template for the home page or a response redirect
+                        depending on the user action.
+    """
     csrf_token = generate_csrf()
     add_form = ToDoForm()
     edit_form = EditTask()
@@ -184,6 +258,7 @@ def home():
     download_form = DownloadListForm()
     discard_changes_form = DiscardChanges()
 
+    # Ensure session variables exist for task management
     if 'tasks_list' not in session:
         session['tasks_list'] = []
     if 'list_name' not in session:
@@ -200,45 +275,49 @@ def home():
     if request.method == 'POST':
         action = request.form.get('action')
         form_id = request.form.get('form_id')
+        # Save both new and already created to-do lists
         if action == 'save':
             if len(session['tasks_list']) > 0:
                 if current_user.is_authenticated:
                     user_to_update = db.session.get(Users, current_user.id)
                     list_data = json.loads(user_to_update.user_lists)
 
-                        # DODAJ ZE DISABLED BTN JEST GDY EDYTUJESZ LISTE
-                        # jesli nie w bazie danych to czy nie będzie błędu?
-                    if session['edited_list_index'] != 'not_in_db':
-                        list_data.pop(session['edited_list_index'])
-                        date_today = date.today().strftime("%d.%m.%Y")
-                        session['list_name'] = f'My to-do list {date_today}'
-                        session['title'] = 'with_date'
-                        session['tasks_list'] = []
-                        session['edited_list_index'] = 'not_in_db'
-                        session.modified = True
-                    if len(list_data) > 9:
-                        flash('The maximum number of to-do lists has been reached! Delete unused to-do lists to save'
-                              ' a new one', 'info')
-                        return redirect(url_for('home'))
+                    last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+                    current_to_do_dict = {'list_name': session['list_name'],
+                                          'style': session['style'],
+                                          'font': session['font'],
+                                          'tasks_list': session['tasks_list'],
+                                          'last_edited': last_edited
+                                          }
+                    if session['edited_list_index'] == 'not_in_db':
+                        if len(list_data) > 9:
+                            flash('The maximum number of to-do lists has been reached! Delete unused to-do lists '
+                                  'to save a new one', 'info')
+                            return redirect(url_for('home'))
                     else:
-                        last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
-                        current_to_do_dict = {'list_name': session['list_name'],
-                                              'style': session['style'],
-                                              'font': session['font'],
-                                              'tasks_list': session['tasks_list'],
-                                              'last_edited': last_edited
-                                              }
-                        list_data.insert(0, current_to_do_dict)
-                        json_list_data = json.dumps(list_data)
-                        user_to_update.user_lists = json_list_data
-                        db.session.commit()
-                        flash('The list has been successfully saved!', 'info')
-                        return redirect(url_for('user_account'))
+                        list_data.pop(session['edited_list_index'])
+
+                    # Reset session variables after saving
+                    date_today = date.today().strftime("%d.%m.%Y")
+                    session['list_name'] = f'My to-do list {date_today}'
+                    session['title'] = 'with_date'
+                    session['tasks_list'] = []
+                    session['edited_list_index'] = 'not_in_db'
+                    session.modified = True
+
+                    # Save updated list data to the database
+                    list_data.insert(0, current_to_do_dict)
+                    json_list_data = json.dumps(list_data)
+                    user_to_update.user_lists = json_list_data
+                    db.session.commit()
+                    flash('The list has been successfully saved!', 'info')
+                    return redirect(url_for('user_account'))
                 else:
                     return redirect(url_for('account_login'))
             else:
                 flash('This to-do list is empty! Add tasks in order to save it', 'info')
                 return redirect(url_for('home'))
+        # Restart to-do list creation process
         elif action == 'new':
             date_today = date.today().strftime("%d.%m.%Y")
             session['list_name'] = f'My to-do list {date_today}'
@@ -246,6 +325,7 @@ def home():
             session['tasks_list'] = []
             session.modified = True
             return redirect(url_for('home'))
+        # Move a task up in the list
         elif action == 'move_up':
             task_id = int(request.form.get('task_id'))
             task_to_move = session['tasks_list'][task_id]
@@ -256,6 +336,7 @@ def home():
                 session['tasks_list'].insert(len(session['tasks_list']), task_to_move)
             session.modified = True
             return redirect(url_for('home'))
+        # Move a task down in the list
         elif action == 'move_down':
             task_id = int(request.form.get('task_id'))
             task_to_move = session['tasks_list'][task_id]
@@ -266,18 +347,20 @@ def home():
                 session['tasks_list'].insert(0, task_to_move)
             session.modified = True
             return redirect(url_for('home'))
+        # Rewrite or change the colour of a task
         elif action == 'edit':
             task_id = int(request.form.get('task_id'))
             task_to_edit = session['tasks_list'][task_id]
             session['edited_task_data'] = task_to_edit
             session['edited_task_id'] = task_id
             return redirect(url_for('home'))
+        # Delete a task
         elif action == 'delete':
             task_id = int(request.form.get('task_id'))
             session['tasks_list'].pop(task_id)
             session.modified = True
             return redirect(url_for('home'))
-
+        # Save the chosen style options of the to-do list
         if edit_list.validate_on_submit() and form_id == 'edit_list':
             session['style'] = request.form.get('styleOption')
             session['font'] = request.form.get('fontOption')
@@ -291,7 +374,7 @@ def home():
                 session['list_name'] = ''
             session.modified = True
             return redirect(url_for('home'))
-
+        # Save changes to an edited task
         if edit_form.validate_on_submit() and form_id == 'edit_form':
             new_task_color = request.form.get('taskColor')
             is_crossed_through = session['tasks_list'][session['edited_task_id']][2]
@@ -301,7 +384,7 @@ def home():
             session.pop('edited_task_id')
             session.modified = True
             return redirect(url_for('home'))
-
+        # Add a new task to the to-do list
         if add_form.validate_on_submit() and form_id == 'add_form':
             task_color = request.form.get('taskColor')
             if not task_color:
@@ -309,12 +392,14 @@ def home():
             session['tasks_list'].append([add_form.new_task.data, task_color, False])
             session.modified = True
             return redirect(url_for('home'))
-
+        # Download the to-do list in a chosen format
         if download_form.validate_on_submit() and form_id == 'download_form':
             chosen_format = request.form.get('downloadOption')
             chosen_style = session['style']
             list_font = session['font']
             tasks_list = session['tasks_list']
+            chosen_title = session['list_name']
+
             if current_user.is_authenticated:
                 list_name = f'{current_user.username}\'s to-do list'
             else:
@@ -324,8 +409,9 @@ def home():
                                  chosen_style=chosen_style,
                                  list_font=list_font,
                                  tasks_list=tasks_list,
-                                 list_name=list_name)
-
+                                 list_name=list_name,
+                                 chosen_title=chosen_title)
+        # Check the task checkbox and strike its text through
         if checkbox_form.validate_on_submit() and form_id == 'checkbox_form':
             checkbox_index = request.form.get('checkbox_hidden')
 
@@ -335,13 +421,9 @@ def home():
                 session['tasks_list'][int(checkbox_index)][2] = True
             session.modified = True
 
-            # TUTAJ DODAJ, JAK checkbox_index < tylu ile sie mieści na stronie bez scrollowania (zmierz mniej więcej len
-            # kilku pierwszych tasków?), to żeby redirectowało
-            # do głównej a nie do elementu
-
             view_element = f'#{checkbox_index}'
             return redirect(url_for('home') + view_element)
-
+        # Stop editing a saved list and return it to its saved state
         if discard_changes_form.validate_on_submit() and form_id == 'discard_changes_form':
             date_today = date.today().strftime("%d.%m.%Y")
             session['list_name'] = f'My to-do list {date_today}'
@@ -370,9 +452,15 @@ def home():
                            )
 
 
-# Manage saved user lists
 @app.route('/user', methods=['GET', 'POST'])
-def user_account():
+def user_account() -> Response | str:
+    """Manage saved user to-do lists.
+
+    Returns:
+        Response | str: A redirect to another route if the user is not authenticated,
+                        edits a list, deletes a list, or downloads a file. Renders a template
+                        with user-specific to-do list data.
+    """
     csrf_token = generate_csrf()
     download_form = DownloadListForm()
     show_edit_modal = False
@@ -385,12 +473,12 @@ def user_account():
     else:
         user = db.session.get(Users, current_user.id)
         list_data = json.loads(user.user_lists)
-        # NIE DZIAŁA TYTUŁ W ŚCIĄGANEJ LIŚCIE - ROBI SIĘ PO PROSTU MY-TO-DO LIST
 
         if request.method == 'POST':
             download_list_index = request.form.get('download_list_index')
             deleted_list_index = request.form.get('delete_list_index')
             edited_list_index = request.form.get('edit_list_index')
+            # Start editing the chosen to-do list
             if edited_list_index is not None:
                 edited_list = list_data[int(edited_list_index)]
                 session['list_name'] = edited_list['list_name']
@@ -400,24 +488,28 @@ def user_account():
                 session['edited_list_index'] = int(edited_list_index)
                 session.modified = True
                 return redirect(url_for('home'))
+            # Delete the chosen to-do list from the database
             elif deleted_list_index is not None:
                 list_data.pop(int(deleted_list_index))
                 json_list_data = json.dumps(list_data)
                 user.user_lists = json_list_data
                 db.session.commit()
                 return redirect(url_for('user_account'))
+            # Download the selected to-do list in the chosen format
             elif download_form.validate_on_submit():
                 chosen_format = request.form.get('downloadOption')
                 downloaded_list = list_data[int(download_list_index)]
                 chosen_style = downloaded_list['style']
                 list_font = downloaded_list['font']
                 tasks_list = downloaded_list['tasks_list']
+                chosen_title = downloaded_list['list_name']
                 list_name = f'{current_user.username}\'s to-do list'
                 return download_file(chosen_format=chosen_format,
                                      chosen_style=chosen_style,
                                      list_font=list_font,
                                      tasks_list=tasks_list,
-                                     list_name=list_name)
+                                     list_name=list_name,
+                                     chosen_title = chosen_title)
         return render_template('user.html',
                                csrf_token=csrf_token,
                                download_form=download_form,
@@ -426,9 +518,14 @@ def user_account():
                                list_data=list_data)
 
 
-# Login to user account
 @app.route('/user/login', methods=['GET', 'POST'])
-def account_login():
+def account_login() -> Response | str:
+    """Authenticate and log in a user.
+
+    Returns:
+        Response | str: A rendered template for the login page or a response redirect
+                        to the user account if the login process is successful.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('user_account'))
     else:
@@ -457,9 +554,15 @@ def account_login():
                                form=form)
 
 
-# Create an account
 @app.route('/user/add', methods=['GET', 'POST'])
-def add_user():
+def add_user() -> Response | str:
+    """Register a new user and create a new record in the database.
+
+    Returns:
+        Response | str: A rendered template for creating a new account, a response redirect
+                        to the home page if an account is created or a response redirect
+                        to the login page if the email provided already exists in the database.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('user_account'))
     else:
@@ -493,9 +596,15 @@ def add_user():
                                form=form)
 
 
-# Send an email with the username
 @app.route('/forgot_username', methods=['GET', 'POST'])
-def forgot_username():
+def forgot_username() -> Response | str:
+    """Handle the 'Forgot Username' process by verifying the user's email and sending their username.
+
+    Returns:
+        Response | str : The rendered template with a form for providing an email
+                         and a response redirect to the same template after sending the username
+                         to the user email or if the email provided is invalid.
+    """
     form = ForgotLoginForm()
     if request.method == 'POST':
         user_email = form.provide_email.data
@@ -513,9 +622,16 @@ def forgot_username():
                            form=form)
 
 
-# Send an email with password reset link
 @app.route('/forgot_password', methods=['GET', 'POST'])
-def forgot_password():
+def forgot_password() -> Response | str:
+    """Reset user's password through an email with password reset link.
+
+    Returns:
+        Response | str: Renders the template with a form for providing an email.
+                        A redirect back to the 'forgot_password' route after sending
+                        a password reset link or handling an invalid email. Checks if
+                        the token sent is still active.
+    """
     form = ForgotLoginForm()
     if request.method == 'POST':
         user_email = form.provide_email.data
@@ -527,6 +643,7 @@ def forgot_password():
                 flash('An email has been sent with instructions to reset your password', 'warning')
                 return redirect(url_for('forgot_password'))
             else:
+                # Check if the last sent token is still active
                 if timedelta(minutes=30) < (datetime.now(UTC).replace(tzinfo=None) - user.token_last_sent):
                     user.token_last_sent = send_password_reset(user.user_email)
                     db.session.commit()
@@ -542,9 +659,18 @@ def forgot_password():
     return render_template('forgot_password.html', form=form)
 
 
-# Reset password from link
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
+def reset_password(token) -> Response | str:
+    """Authenticate the reset token and allow the user to reset their password.
+
+    Args:
+        token (str): The reset token included in the URL.
+
+    Returns:
+        Response | str: Redirect to the login page if the password is successfully
+                        reset, renders the password reset form if the token is valid,
+                        or shows an error message if invalid.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     else:
@@ -602,25 +728,39 @@ def reset_password(token):
             return redirect(url_for('add_user'))
 
 
-# Log out of the account
 @app.route('/logout')
-def logout():
+def logout() -> Response:
+    """Log out of user's account.
+
+    Returns:
+        Response: A response redirect to the home page after logging out.
+    """
     logout_user()
     flash('You logged out of your account', 'success')
     return redirect(url_for('home'))
 
 
-# Update user profile
 @app.route('/update_profile', methods=['GET', 'POST'])
 @login_required
-def update_profile():
+def update_profile() -> str:
+    """Manage user account details.
+
+    Returns:
+        str: Renders the template for displaying user account update options.
+    """
     return render_template('update_user.html')
 
 
-# Update username
 @app.route('/update_username', methods=['GET', 'POST'])
 @login_required
-def update_username():
+def update_username() -> Response | str:
+    """Update the username.
+
+    Returns:
+        Response | str: Redirects to the user account page if the update is successful,
+                        renders the template with the form if the request is a GET, the username
+                        is the same or an error occurs.
+    """
     user_to_update = db.session.get(Users, current_user.id)
     form = UpdateUsernameForm()
     if request.method == 'POST':
@@ -641,10 +781,17 @@ def update_username():
                            form=form)
 
 
-# Update user password
 @app.route('/update_password', methods=['GET', 'POST'])
 @login_required
-def update_password():
+def update_password() -> Response | str:
+    """Save updated user password.
+
+    Returns:
+        Response | str: A redirect response to the user account page if the password
+                        is successfully updated, or a rendered template displaying the password
+                        update form if the request is a GET or if there are validation issues
+                        during the update process.
+    """
     user_to_update = db.session.get(Users, current_user.id)
     form = UpdatePasswordForm()
     if request.method == 'POST':
@@ -667,16 +814,20 @@ def update_password():
                     return render_template('update_user.html')
         else:
             flash('The passwords provided do not match', 'warning')
-            return render_template('update_password.html',
-                                   form=form)
-    return render_template('update_password.html',
-                           form=form)
+            return render_template('update_password.html', form=form)
+    return render_template('update_password.html', form=form)
 
 
-# Delete the account
 @app.route('/delete_account', methods=['GET', 'POST'])
 @login_required
-def delete_account():
+def delete_account() -> Response | str:
+    """Delete user account from the database and log out.
+
+    Returns:
+        Response | str: A redirect response to the home page if the account
+                        is successfully deleted, or a rendered template displaying
+                        the account deletion confirmation form.
+    """
     csrf_token = generate_csrf()
     form = DeleteAccountForm()
     if request.method == 'POST':
@@ -697,19 +848,14 @@ def delete_account():
     return render_template('delete_account.html', csrf_token=csrf_token, form=form)
 
 
-# Handle downloading files
-@app.route('/download')
-def download():
-    list_to_download = 'static/images/error.png'
-    list_to_download_name = 'beagle pies to fejnowergowaty jest'
-    return send_file(list_to_download, download_name=list_to_download_name, as_attachment=True)
-
-    # return send_file(BytesIO(upload.data), download_name=upload.filename, as_attachment=True )
-
-
-# Motivational quotes page from API
 @app.route('/motivation')
-def motivational_quotes():
+def motivational_quotes() -> str:
+    """Display motivational quotes on a page using API.
+
+    Returns:
+        str: A rendered template displaying motivational quotes from an API
+             or a predefined info message if the service is unavailable.
+    """
     quote_data = get_quote()
     quote = quote_data[0]
     author = quote_data[1]
@@ -719,15 +865,24 @@ def motivational_quotes():
     return render_template('motivational_quotes.html', quote=quote, author=author)
 
 
-# About page
 @app.route('/about')
-def about():
+def about() -> str:
+    """Display 'About' page.
+
+    Returns:
+        str: A rendered template of the 'About' page.
+    """
     return render_template('about.html')
 
 
-# Suggest a feature
 @app.route('/suggest_features', methods=['GET', 'POST'])
-def suggest_features():
+def suggest_features() -> Response | str:
+    """Display a form where a user can suggest a feature.
+
+    Returns:
+        Response | str: A redirect response if the form is successfully submitted,
+                        or a rendered template displaying the suggestion form.
+    """
     form = SuggestFeatureForm()
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -740,30 +895,47 @@ def suggest_features():
     return render_template('suggest_features.html', form=form)
 
 
-# Missing or invalid CSRF token
 @app.errorhandler(400)
-def csrf_error(e):
+def csrf_error(e: Exception) -> tuple[str, int]:
+    """Handle a Bad Request (400) error.
+
+    Args:
+        e (Exception): The exception object raised during the error.
+
+    Returns:
+        tuple[str, int]: A tuple containing the rendered 400 error template
+                         and the status code.
+    """
     return render_template('400.html'), 400
 
 
-# Invalid URL
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(e: Exception) -> tuple[str, int]:
+    """Handle a Page Not Found (404) error.
+
+    Args:
+        e (Exception): The exception object raised during the error.
+
+    Returns:
+        tuple[str, int]: A tuple containing the rendered 404 error template
+                         and the status code.
+    """
     return render_template('404.html'), 404
 
 
-# Internal Server Error
 @app.errorhandler(500)
-def page_not_found(e):
+def page_not_found(e: Exception) -> tuple[str, int]:
+    """Handle an Internal Server Error (500).
+
+    Args:
+        e (Exception): The exception object raised during the error.
+
+    Returns:
+        tuple[str, int]: A tuple containing the rendered 500 error template
+                         and the status code.
+    """
     return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-# todo:
-#  2. wyświetlają się listy w user, można je ściągnąć na 3 sposoby oraz edytować
-#  4. zastanów się czy jednak nie użyć javascriptu, żeby strona się nie odświeżała przy każdym przekreśleniu checkboxem
-#  5. sprawdź gdzie masz kolor secondary a gdzie tertiary na pc Agaty i zdecyduj się na 1
-#  6. Obtain an SSL Certificate, use https, http, lax?
-#  7. dodaj komentarze/opisy do funkcji i klas + deklaracje typów

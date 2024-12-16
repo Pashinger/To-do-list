@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="d-flex justify-content-center align-items-center mb-0 m-5 p-5">
-  <div class="col-10 p-5 rounded text-body-emphasis bg-body-secondary border border-dark border-2 text-center">
+  <div class="col-10 p-5 rounded-4 text-body-emphasis bg-light border border-dark border-2 text-center">
     <h4><strong>This website has been created as a part of a developer portfolio.</strong></h4>
     <p class="lead mt-3 mb-1 pt-1"><strong>Visit the creator's LinkedIn profile:&nbsp;&nbsp;</strong>
         <a href="https://www.linkedin.com/in/jakub-gniewek-375a021a0/" target="_blank">
@@ -21,14 +21,18 @@
 
 <div class="d-flex justify-content-center align-items-center align-items-stretch mt-0 pt-0 mb-4 pb-5 mx-5 px-5 row">
   <div class="col-5 pe-4 d-flex">
-    <div class="row flex-grow-1 bg-body-secondary border border-dark border-2 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+    <div class="row flex-grow-1 bg-light border border-dark border-2 rounded-4 overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
       <div class="col p-5 d-flex flex-column position-static align-items-center">
         <h5 class="pb-3"><strong>The features included:</strong></h5>
           <ul class="custom-list card-text mb-auto">
-            <li>easy to-do lists creation, modification and labeling</li>
-            <li>secure username and password recovery using token verification</li>
-            <li>the user can download the lists as PDF files</li>
-            <li>integration with <a href="https://zenquotes.io/" class="text-decoration-none" target="_blank">ZenQuotes API</a> for a dose of inspirational quotes</li>
+            <li>Effortless creation, modification, and labeling of to-do lists</li>
+            <li>Users can register, log in, and manage their account details</li>
+            <li>Secure password recovery through email with token-based verification</li>
+            <li>Tasks can be reordered, customized with colors, or deleted</li>
+            <li>Personalized styling options for lists, including various backgrounds and fonts</li>
+            <li>Lists can be downloaded in PDF, JPG or PNG formats</li>
+            <li>Registered users can save their lists in a database for future modification, download, or deletion</li>
+            <li>Integration with <a href="https://zenquotes.io/" class="text-decoration-none" target="_blank">ZenQuotes API</a> for a dose of inspirational quotes</li>
           </ul>
       </div>
       <div class="col-auto d-none d-lg-block">
@@ -36,19 +40,27 @@
     </div>
   </div>
   <div class="col-5 ps-4 d-flex">
-    <div class="row flex-grow-1 bg-body-secondary border border-dark border-2 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-      <div class="col p-5 d-flex flex-column position-static align-items-center">
-        <h5 class="pb-3"><strong>Main technologies used:</strong></h5>
+    <div class="row flex-grow-1 bg-light border border-dark border-2 rounded-4 overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+      <div class="col p-5 d-flex flex-column position-static">
+        <h5 class="pb-3 text-center"><strong>Main technologies used:</strong></h5>
           <ul class="custom-list card-text mb-auto">
             <li>Flask</li>
             <li>Bootstrap</li>
-            <li>SQLAlchemy</li>
             <li>MySQL</li>
             <li>Python</li>
             <li>HTML</li>
             <li>CSS</li>
-            <li>code snippets in Javascript</li>
-            <li>libraries such as itsdangerous, datetime, werkzeug, wtforms</li>
+            <li>Code snippets in Javascript</li>
+            <li>Libraries such as:
+              <ul>
+                <li>SQLAlchemy</li>
+                <li>PIL</li>
+                <li>ItsDangerous</li>
+                <li>WTForms</li>
+                <li>Flask-WTF</li>
+                <li>Werkzeug</li>
+              </ul>
+            </li>
           </ul>
       </div>
     </div>
