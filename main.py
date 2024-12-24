@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, UTC, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
-from pdf_maker import create_task_image
+from pdf_maker import create_task_image, calculate_body_length
 import json
 
 # Initialize the Flask application
@@ -272,6 +272,12 @@ def home() -> Response | str:
     if 'edited_list_index' not in session:
         session['edited_list_index'] = 'not_in_db'
 
+    session['list_will_fit'] = calculate_body_length(
+        chosen_style=session['style'],
+        list_font=session['font'],
+        tasks_list=session['tasks_list'],
+        chosen_title=session['list_name'])
+
     if request.method == 'POST':
         action = request.form.get('action')
         form_id = request.form.get('form_id')
@@ -448,7 +454,8 @@ def home() -> Response | str:
                            title=session['title'],
                            style=session['style'],
                            font=session['font'],
-                           list_modified=session['edited_list_index']
+                           list_modified=session['edited_list_index'],
+                           list_will_fit=session['list_will_fit']
                            )
 
 
@@ -509,7 +516,7 @@ def user_account() -> Response | str:
                                      list_font=list_font,
                                      tasks_list=tasks_list,
                                      list_name=list_name,
-                                     chosen_title = chosen_title)
+                                     chosen_title=chosen_title)
         return render_template('user.html',
                                csrf_token=csrf_token,
                                download_form=download_form,
