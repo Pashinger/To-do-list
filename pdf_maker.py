@@ -53,9 +53,12 @@ FONT_OFFSETS = {
         'notebook_title_x_no_date': 70,
         'text_y': 5,
         'title_y': 0,
-        'text_wrapping_plain': 0.35,
-        'text_wrapping_retro': 0.09,
-        'text_wrapping_notebook': -0.34
+        'text_wrapping_lower_plain': 0.35,
+        'text_wrapping_lower_retro': 0.09,
+        'text_wrapping_lower_notebook': -0.34,
+        'text_wrapping_upper_plain': 0.9,
+        'text_wrapping_upper_retro': 0.4,
+        'text_wrapping_upper_notebook': -0.26
     },
     'cour': {
         'plain_title_x_date': -306,
@@ -66,9 +69,12 @@ FONT_OFFSETS = {
         'notebook_title_x_no_date': 40,
         'text_y': 8,
         'title_y': 0,
-        'text_wrapping_plain': 1.14,
-        'text_wrapping_retro': 0.69,
-        'text_wrapping_notebook': 0.085
+        'text_wrapping_lower_plain': 1.14,
+        'text_wrapping_lower_retro': 0.69,
+        'text_wrapping_lower_notebook': 0.085,
+        'text_wrapping_upper_plain': 0.6,
+        'text_wrapping_upper_retro': 0.22,
+        'text_wrapping_upper_notebook': -0.4
     },
     'segoesc': {
         'plain_title_x_date': -306,
@@ -79,9 +85,12 @@ FONT_OFFSETS = {
         'notebook_title_x_no_date': 45,
         'text_y': 0,
         'title_y': -8,
-        'text_wrapping_plain': 0.5,
-        'text_wrapping_retro': 0.18,
-        'text_wrapping_notebook': -0.24
+        'text_wrapping_lower_plain': 0.5,
+        'text_wrapping_lower_retro': 0.18,
+        'text_wrapping_lower_notebook': -0.24,
+        'text_wrapping_upper_plain': 1.5,
+        'text_wrapping_upper_retro': 0.9,
+        'text_wrapping_upper_notebook': 0
     }
 }
 
@@ -145,9 +154,9 @@ def calculate_body_length(
             # Count the number of occupied lines on a page, wrapping included
             for char in text:
                 if char.isupper():
-                    line_length += (1.45 + FONT_OFFSETS[list_font][f'text_wrapping_{chosen_style}'])
+                    line_length += (1.45 + FONT_OFFSETS[list_font][f'text_wrapping_upper_{chosen_style}'])
                 else:
-                    line_length += (1 + FONT_OFFSETS[list_font][f'text_wrapping_{chosen_style}'])
+                    line_length += (1 + FONT_OFFSETS[list_font][f'text_wrapping_lower_{chosen_style}'])
                 if line_length >= list_style['wrap_length']:
                     if current_line[-1] == ' ':
                         wrapped_item.append(current_line)
@@ -228,9 +237,9 @@ def create_task_image(
         # Reformat the task text so that words which wrap are cut into separate list elements
         for char in text:
             if char.isupper():
-                line_length += (1.45 + FONT_OFFSETS[list_font][f'text_wrapping_{chosen_style}'])
+                line_length += (1.45 + FONT_OFFSETS[list_font][f'text_wrapping_upper_{chosen_style}'])
             else:
-                line_length += (1 + FONT_OFFSETS[list_font][f'text_wrapping_{chosen_style}'])
+                line_length += (1 + FONT_OFFSETS[list_font][f'text_wrapping_lower_{chosen_style}'])
             if line_length >= list_style['wrap_length']:
                 if current_line[-1] == ' ':
                     wrapped_item.append(current_line)

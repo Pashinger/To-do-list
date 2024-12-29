@@ -288,7 +288,7 @@
         </form>
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="submit" name="action" value="new" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
+            <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="submit" name="action" value="new" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Clear all tasks and start over" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/>
                 <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/>
@@ -312,7 +312,7 @@
            data-bs-title="
            <img src='static/images/pointer.jpg' alt='Pointing Hand Image'>
            Click on a task to &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make changes"
-           data-bs-delay='{"show":1600,"hide":150}'
+           data-bs-delay='{"show":600,"hide":150}'
            data-bs-html="true"
            data-bs-placement="right"
            data-bs-offset="0,55">

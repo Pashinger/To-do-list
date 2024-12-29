@@ -94,7 +94,7 @@
             <input type="hidden" name="delete_list_index" id="delete_list_index">
             <button type="submit" class="btn btn-danger w-100">Delete</button>
           </form>
-          <a href="{{ url_for('user_account') }}" class="btn btn-dark flex-fill text-center" data-bs-dismiss="modal">Close</a>
+          <a href="{{ url_for('user_account') }}" class="btn btn-dark flex-fill text-center" data-bs-dismiss="modal">Cancel</a>
         </div>
     </div>
   </div>
@@ -102,7 +102,14 @@
 
 <div class="d-flex justify-content-center align-items-center m-5 p-5">
     <div class="card border-dark border-2 p-5 rounded-3 col-8">
-      <h1 class="text-center fs-2">Your to-do lists</h1>
+      <div class="d-flex align-items-center position-relative px-4">
+        <h1 class="text-center fs-2 ms-auto">Your to-do lists</h1>
+        <a href="{{ url_for('make_a_new_list') }}" class="text-dark ms-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
+          </svg>
+        </a>
+      </div>
       <div class="card-body">
       <hr>
       {% for user_list in list_data %}

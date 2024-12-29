@@ -192,6 +192,15 @@ def download_file(
     )
 
 
+def clear_list():
+    date_today = date.today().strftime("%d.%m.%Y")
+    session['list_name'] = f'My to-do list {date_today}'
+    session['title'] = 'with_date'
+    session['tasks_list'] = []
+    session.modified = True
+    return redirect(url_for('home'))
+
+
 class Users(UserMixin, db.Model):
     """A database model representing a user in the application.
 
@@ -304,12 +313,12 @@ def home() -> Response | str:
                         list_data.pop(session['edited_list_index'])
 
                     # Reset session variables after saving
-                    date_today = date.today().strftime("%d.%m.%Y")
-                    session['list_name'] = f'My to-do list {date_today}'
-                    session['title'] = 'with_date'
-                    session['tasks_list'] = []
                     session['edited_list_index'] = 'not_in_db'
-                    session.modified = True
+                    clear_list()
+                    # date_today = date.today().strftime("%d.%m.%Y")
+                    # session['list_name'] = f'My to-do list {date_today}'
+                    # session['title'] = 'with_date'
+                    # session['tasks_list'] = []
 
                     # Save updated list data to the database
                     list_data.insert(0, current_to_do_dict)
@@ -325,12 +334,13 @@ def home() -> Response | str:
                 return redirect(url_for('home'))
         # Restart to-do list creation process
         elif action == 'new':
-            date_today = date.today().strftime("%d.%m.%Y")
-            session['list_name'] = f'My to-do list {date_today}'
-            session['title'] = 'with_date'
-            session['tasks_list'] = []
-            session.modified = True
-            return redirect(url_for('home'))
+            clear_list()
+            # date_today = date.today().strftime("%d.%m.%Y")
+            # session['list_name'] = f'My to-do list {date_today}'
+            # session['title'] = 'with_date'
+            # session['tasks_list'] = []
+            # session.modified = True
+            # return redirect(url_for('home'))
         # Move a task up in the list
         elif action == 'move_up':
             task_id = int(request.form.get('task_id'))
@@ -457,6 +467,21 @@ def home() -> Response | str:
                            list_modified=session['edited_list_index'],
                            list_will_fit=session['list_will_fit']
                            )
+
+
+@app.route('/make_a_new_list')
+def make_a_new_list() -> Response:
+    """If a user list is being edited, cancels the edit mode and clears the current
+       list, then redirects to the home page. Otherwise, redirects to the home page.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    if session['edited_list_index'] == 'not_in_db':
+        return redirect(url_for('home'))
+    else:
+        session['edited_list_index'] = 'not_in_db'
+        return clear_list()
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -743,8 +768,9 @@ def logout() -> Response:
         Response: A response redirect to the home page after logging out.
     """
     logout_user()
+    session['edited_list_index'] = 'not_in_db'
     flash('You logged out of your account', 'success')
-    return redirect(url_for('home'))
+    return clear_list()
 
 
 @app.route('/update_profile', methods=['GET', 'POST'])
