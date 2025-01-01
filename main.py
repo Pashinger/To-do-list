@@ -156,7 +156,6 @@ def download_file(
         chosen_style: str,
         list_font: str,
         tasks_list: list[tuple[str, str, bool]],
-        list_name: str,
         chosen_title: str
 ) -> Response:
     """Generate and return a downloadable file (an image or a PDF) based on the given parameters.
@@ -167,7 +166,6 @@ def download_file(
         list_font (str): The font to use for the text in the file ('Times New Roman',
                          'Courier New' or 'Segoe Script').
         tasks_list (list[tuple[str, str, bool]]): A list of tasks to include in the file.
-        list_name (str): The base name of the file (without extension).
         chosen_title (str): The title of the to-do list to display in the generated file.
 
     Returns:
@@ -178,7 +176,14 @@ def download_file(
     mimetype = 'image'
     if chosen_format == 'pdf':
         mimetype = 'application'
-    list_name_full = f'{list_name}.{chosen_format}'
+
+    if current_user.is_authenticated:
+        list_name = f'{current_user.username}\'s to-do list.{chosen_format}'
+    else:
+        if session['list_name']:
+            list_name = f'{session["list_name"]}.{chosen_format}'
+        else:
+            list_name = f'My to-do list.{chosen_format}'
     list_image_stream = create_task_image(chosen_format=chosen_format,
                                           chosen_style=chosen_style,
                                           list_font=list_font,
@@ -188,16 +193,35 @@ def download_file(
     return Response(
         list_image_stream,
         mimetype=f'{mimetype}/{chosen_format}',
-        headers={'Content-Disposition': f'attachment;filename={list_name_full}'}
+        headers={'Content-Disposition': f'attachment;filename={list_name}'}
     )
 
 
-def clear_list():
+def clear_list(*args: bool) -> Response:
+    """Clears the current to-do list and resets relevant session variables.
+
+    If any boolean arguments are passed, the list edit mode is canceled by
+    setting `edited_list_index` to 'not_in_db'. A default list name with the
+    current date is set and the tasks list is emptied. The function
+    redirects to the user account page if multiple arguments are provided;
+    otherwise, it redirects to the home page.
+
+    Args:
+        *args (bool): Optional boolean arguments. Used to determine if edit mode
+                      is canceled and the redirection target.
+
+    Returns:
+        Response: A redirect to the home page or user account page.
+    """
+    if args:
+        session['edited_list_index'] = 'not_in_db'
     date_today = date.today().strftime("%d.%m.%Y")
     session['list_name'] = f'My to-do list {date_today}'
     session['title'] = 'with_date'
     session['tasks_list'] = []
     session.modified = True
+    if len(args) > 1:
+        return redirect(url_for('user_account'))
     return redirect(url_for('home'))
 
 
@@ -292,162 +316,60 @@ def home() -> Response | str:
         form_id = request.form.get('form_id')
         # Save both new and already created to-do lists
         if action == 'save':
-            if len(session['tasks_list']) > 0:
-                if current_user.is_authenticated:
-                    user_to_update = db.session.get(Users, current_user.id)
-                    list_data = json.loads(user_to_update.user_lists)
-
-                    last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
-                    current_to_do_dict = {'list_name': session['list_name'],
-                                          'style': session['style'],
-                                          'font': session['font'],
-                                          'tasks_list': session['tasks_list'],
-                                          'last_edited': last_edited
-                                          }
-                    if session['edited_list_index'] == 'not_in_db':
-                        if len(list_data) > 9:
-                            flash('The maximum number of to-do lists has been reached! Delete unused to-do lists '
-                                  'to save a new one', 'info')
-                            return redirect(url_for('home'))
-                    else:
-                        list_data.pop(session['edited_list_index'])
-
-                    # Reset session variables after saving
-                    session['edited_list_index'] = 'not_in_db'
-                    clear_list()
-                    # date_today = date.today().strftime("%d.%m.%Y")
-                    # session['list_name'] = f'My to-do list {date_today}'
-                    # session['title'] = 'with_date'
-                    # session['tasks_list'] = []
-
-                    # Save updated list data to the database
-                    list_data.insert(0, current_to_do_dict)
-                    json_list_data = json.dumps(list_data)
-                    user_to_update.user_lists = json_list_data
-                    db.session.commit()
-                    flash('The list has been successfully saved!', 'info')
-                    return redirect(url_for('user_account'))
-                else:
-                    return redirect(url_for('account_login'))
-            else:
-                flash('This to-do list is empty! Add tasks in order to save it', 'info')
-                return redirect(url_for('home'))
+            return redirect(url_for('save_list'))
         # Restart to-do list creation process
         elif action == 'new':
             clear_list()
-            # date_today = date.today().strftime("%d.%m.%Y")
-            # session['list_name'] = f'My to-do list {date_today}'
-            # session['title'] = 'with_date'
-            # session['tasks_list'] = []
-            # session.modified = True
-            # return redirect(url_for('home'))
         # Move a task up in the list
         elif action == 'move_up':
-            task_id = int(request.form.get('task_id'))
-            task_to_move = session['tasks_list'][task_id]
-            session['tasks_list'].pop(task_id)
-            if task_id > 0:
-                session['tasks_list'].insert(task_id - 1, task_to_move)
-            else:
-                session['tasks_list'].insert(len(session['tasks_list']), task_to_move)
-            session.modified = True
-            return redirect(url_for('home'))
+            task_id = request.form.get('task_id')
+            return redirect(url_for('move_up', task_id=task_id))
         # Move a task down in the list
         elif action == 'move_down':
-            task_id = int(request.form.get('task_id'))
-            task_to_move = session['tasks_list'][task_id]
-            session['tasks_list'].pop(task_id)
-            if task_id < len(session['tasks_list']):
-                session['tasks_list'].insert(task_id + 1, task_to_move)
-            else:
-                session['tasks_list'].insert(0, task_to_move)
-            session.modified = True
-            return redirect(url_for('home'))
+            task_id = request.form.get('task_id')
+            return redirect(url_for('move_down', task_id=task_id))
         # Rewrite or change the colour of a task
         elif action == 'edit':
-            task_id = int(request.form.get('task_id'))
-            task_to_edit = session['tasks_list'][task_id]
-            session['edited_task_data'] = task_to_edit
-            session['edited_task_id'] = task_id
-            return redirect(url_for('home'))
+            task_id = request.form.get('task_id')
+            return redirect(url_for('edit_task', task_id=task_id))
         # Delete a task
         elif action == 'delete':
-            task_id = int(request.form.get('task_id'))
-            session['tasks_list'].pop(task_id)
-            session.modified = True
-            return redirect(url_for('home'))
+            task_id = request.form.get('task_id')
+            return redirect(url_for('delete_task', task_id=task_id))
         # Save the chosen style options of the to-do list
         if edit_list.validate_on_submit() and form_id == 'edit_list':
-            session['style'] = request.form.get('styleOption')
-            session['font'] = request.form.get('fontOption')
-            session['title'] = request.form.get('titleOption')
-            if session['title'] == 'with_date':
-                date_today = date.today().strftime("%d.%m.%Y")
-                session['list_name'] = f'My to-do list {date_today}'
-            elif session['title'] == 'no_date':
-                session['list_name'] = 'My to-do list'
-            elif session['title'] == 'no_title':
-                session['list_name'] = ''
-            session.modified = True
-            return redirect(url_for('home'))
+            style = request.form.get('styleOption')
+            font = request.form.get('fontOption')
+            title = request.form.get('titleOption')
+            return redirect(url_for('save_style_options', style=style, font=font, title=title))
         # Save changes to an edited task
         if edit_form.validate_on_submit() and form_id == 'edit_form':
             new_task_color = request.form.get('taskColor')
-            is_crossed_through = session['tasks_list'][session['edited_task_id']][2]
-            changed_task = [edit_form.edited_task.data, new_task_color, is_crossed_through]
-            session['tasks_list'].pop(session['edited_task_id'])
-            session['tasks_list'].insert(session['edited_task_id'], changed_task)
-            session.pop('edited_task_id')
-            session.modified = True
-            return redirect(url_for('home'))
+            new_task_data = edit_form.edited_task.data
+            return redirect(url_for('save_changed_task', new_task_color=new_task_color, new_task_data=new_task_data))
         # Add a new task to the to-do list
         if add_form.validate_on_submit() and form_id == 'add_form':
             task_color = request.form.get('taskColor')
             if not task_color:
                 task_color = 'dark'
-            session['tasks_list'].append([add_form.new_task.data, task_color, False])
-            session.modified = True
-            return redirect(url_for('home'))
+            task_data = add_form.new_task.data
+            return redirect(url_for('add_task', task_color=task_color, task_data=task_data))
         # Download the to-do list in a chosen format
         if download_form.validate_on_submit() and form_id == 'download_form':
             chosen_format = request.form.get('downloadOption')
-            chosen_style = session['style']
-            list_font = session['font']
-            tasks_list = session['tasks_list']
-            chosen_title = session['list_name']
-
-            if current_user.is_authenticated:
-                list_name = f'{current_user.username}\'s to-do list'
-            else:
-                list_name = f'{session["list_name"]}'
 
             return download_file(chosen_format=chosen_format,
-                                 chosen_style=chosen_style,
-                                 list_font=list_font,
-                                 tasks_list=tasks_list,
-                                 list_name=list_name,
-                                 chosen_title=chosen_title)
+                                 chosen_style=session['style'],
+                                 list_font=session['font'],
+                                 tasks_list=session['tasks_list'],
+                                 chosen_title=session['list_name'])
         # Check the task checkbox and strike its text through
         if checkbox_form.validate_on_submit() and form_id == 'checkbox_form':
             checkbox_index = request.form.get('checkbox_hidden')
-
-            if session['tasks_list'][int(checkbox_index)][2]:
-                session['tasks_list'][int(checkbox_index)][2] = False
-            else:
-                session['tasks_list'][int(checkbox_index)][2] = True
-            session.modified = True
-
-            view_element = f'#{checkbox_index}'
-            return redirect(url_for('home') + view_element)
+            return redirect(url_for('checkbox_handler', checkbox_index=checkbox_index))
         # Stop editing a saved list and return it to its saved state
         if discard_changes_form.validate_on_submit() and form_id == 'discard_changes_form':
-            date_today = date.today().strftime("%d.%m.%Y")
-            session['list_name'] = f'My to-do list {date_today}'
-            session['title'] = 'with_date'
-            session['tasks_list'] = []
-            session['edited_list_index'] = 'not_in_db'
-            session.modified = True
-            return redirect(url_for('user_account'))
+            clear_list(True, True)
 
     edited_task_data = session.pop('edited_task_data', False)
     return render_template('index.html',
@@ -469,10 +391,82 @@ def home() -> Response | str:
                            )
 
 
+@app.route('/add_task/<task_color>/<task_data>')
+def add_task(task_color: str, task_data: str) -> Response:
+    """Add a new task to the to-do list by appending session's tasks_list.
+
+    Args:
+        task_color (str): The color chosen for the task text.
+        task_data (str): The text of the task.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    session['tasks_list'].append([task_data, task_color, False])
+    session.modified = True
+    return redirect(url_for('home'))
+
+
+@app.route('/checkbox_handler/<checkbox_index>')
+def checkbox_handler(checkbox_index: str) -> Response:
+    """Check or uncheck the selected task checkbox and strike its text through.
+
+    Args:
+        checkbox_index (str): A string representing the index of the selected task.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    # If the selected task's checkbox is checked, uncheck it and vice versa.
+    if session['tasks_list'][int(checkbox_index)][2]:
+        session['tasks_list'][int(checkbox_index)][2] = False
+    else:
+        session['tasks_list'][int(checkbox_index)][2] = True
+    session.modified = True
+
+    view_element = f'#{checkbox_index}'
+    return redirect(url_for('home') + view_element)
+
+
+@app.route('/edit_task/<task_id>')
+def edit_task(task_id: str) -> Response:
+    """Rewrite or change the colour of the selected task.
+
+    Args:
+        task_id (str): The ID of the task to edit.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    task_id = int(task_id)
+    task_to_edit = session['tasks_list'][task_id]
+    session['edited_task_data'] = task_to_edit
+    session['edited_task_id'] = task_id
+    return redirect(url_for('home'))
+
+
+@app.route('/delete_task/<task_id>')
+def delete_task(task_id: str) -> Response:
+    """Delete the selected task from the session's tasks_list.
+
+    Args:
+        task_id (str): The ID of the task to delete.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    task_id = int(task_id)
+    session['tasks_list'].pop(task_id)
+    session.modified = True
+    return redirect(url_for('home'))
+
+
 @app.route('/make_a_new_list')
 def make_a_new_list() -> Response:
-    """If a user list is being edited, cancels the edit mode and clears the current
-       list, then redirects to the home page. Otherwise, redirects to the home page.
+    """Redirect to the home page and clear the current list if in edit mode.
+
+    If a user list is being edited, cancels the edit mode and clears the current
+    list, then redirects to the home page. Otherwise, redirects to the home page.
 
     Returns:
         Response: A redirect to the home page.
@@ -480,13 +474,160 @@ def make_a_new_list() -> Response:
     if session['edited_list_index'] == 'not_in_db':
         return redirect(url_for('home'))
     else:
-        session['edited_list_index'] = 'not_in_db'
-        return clear_list()
+        return clear_list(True)
+
+
+@app.route('/move_up/<task_id>')
+def move_up(task_id: str) -> Response:
+    """Move a task up in the to-do list.
+
+    Moves a task up in the current to-do list, adjusting its position
+    in the session's tasks list. If the task is at the top of the list,
+    it will be moved to the bottom.
+
+    Args:
+        task_id (str): The ID of the task to move.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    task_id = int(task_id)
+    task_to_move = session['tasks_list'][task_id]
+    session['tasks_list'].pop(task_id)
+    # Calculate the position in the list where the tasks should move.
+    if task_id > 0:
+        session['tasks_list'].insert(task_id - 1, task_to_move)
+    else:
+        session['tasks_list'].insert(len(session['tasks_list']), task_to_move)
+    session.modified = True
+    return redirect(url_for('home'))
+
+
+@app.route('/move_down/<task_id>')
+def move_down(task_id: str) -> Response:
+    """Move a task down in the to-do list.
+
+    Moves a task down in the current to-do list, adjusting its position
+    in the session's tasks list. If the task is at the bottom of the list,
+    it will be moved to the top.
+
+    Args:
+        task_id (str): The ID of the task to move.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    task_id = int(task_id)
+    task_to_move = session['tasks_list'][task_id]
+    session['tasks_list'].pop(task_id)
+    # Calculate the position in the list where the tasks should move.
+    if task_id < len(session['tasks_list']):
+        session['tasks_list'].insert(task_id + 1, task_to_move)
+    else:
+        session['tasks_list'].insert(0, task_to_move)
+    session.modified = True
+    return redirect(url_for('home'))
+
+
+@app.route('/save_list')
+def save_list() -> Response:
+    """Save the current to-do list to the user's account if authenticated and valid.
+
+    If the user is logged in and the to-do list contains tasks, the list is saved
+    to the database. If the list exceeds the allowed limit of 10 saved lists,
+    the user is informed via a flash message. Non-authenticated users
+    are redirected to the register page.
+
+    Returns:
+        Response: A redirect to the user account page, login page, or home page,
+                  depending on the operation outcome.
+    """
+    # Check if there are any tasks in the to-do list
+    if len(session['tasks_list']) > 0:
+        if current_user.is_authenticated:
+            user_to_update = db.session.get(Users, current_user.id)
+            list_data = json.loads(user_to_update.user_lists)
+
+            last_edited = datetime.now().strftime('%d/%m/%y %H:%M:%S')
+            current_to_do_dict = {'list_name': session['list_name'],
+                                  'style': session['style'],
+                                  'font': session['font'],
+                                  'tasks_list': session['tasks_list'],
+                                  'last_edited': last_edited
+                                  }
+            if session['edited_list_index'] == 'not_in_db':
+                if len(list_data) > 9:
+                    flash('The maximum number of to-do lists has been reached! Delete unused to-do lists '
+                          'to save a new one', 'info')
+                    return redirect(url_for('home'))
+            else:
+                list_data.pop(session['edited_list_index'])
+
+            # Reset session variables after saving
+            clear_list(True)
+
+            # Save updated list data to the database
+            list_data.insert(0, current_to_do_dict)
+            json_list_data = json.dumps(list_data)
+            user_to_update.user_lists = json_list_data
+            db.session.commit()
+            flash('The list has been successfully saved!', 'info')
+            return redirect(url_for('user_account'))
+        else:
+            return redirect(url_for('add_user'))
+    else:
+        flash('This to-do list is empty! Add tasks in order to save it', 'info')
+        return redirect(url_for('home'))
+
+
+@app.route('/save_changed_task/<new_task_color>/<task_data>')
+def save_changed_task(new_task_color: str, new_task_data: str) -> Response:
+    """Save the edits made to an already created task in session's tasks_list.
+
+    Args:
+        new_task_color (str): The changed color of the task text.
+        new_task_data (str): The modified task text.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    is_crossed_through = session['tasks_list'][session['edited_task_id']][2]
+    changed_task = [new_task_data, new_task_color, is_crossed_through]
+    session['tasks_list'].pop(session['edited_task_id'])
+    session['tasks_list'].insert(session['edited_task_id'], changed_task)
+    session.pop('edited_task_id')
+    session.modified = True
+    return redirect(url_for('home'))
+
+
+@app.route('/save_style_options/<style>/<font>/<title>')
+def save_style_options(style: str, font: str, title: str) -> Response:
+    """Save the selected style options and modify the title accordingly.
+
+    style (str): The selected background.
+    font (str): The selected font.
+    title (str): The selected title.
+
+    Returns:
+        Response: A redirect to the home page.
+    """
+    session['style'] = style
+    session['font'] = font
+    session['title'] = title
+    if session['title'] == 'with_date':
+        date_today = date.today().strftime("%d.%m.%Y")
+        session['list_name'] = f'My to-do list {date_today}'
+    elif session['title'] == 'no_date':
+        session['list_name'] = 'My to-do list'
+    elif session['title'] == 'no_title':
+        session['list_name'] = ''
+    session.modified = True
+    return redirect(url_for('home'))
 
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_account() -> Response | str:
-    """Manage saved user to-do lists.
+    """Handle edits, deletions and downloads of saved user to-do lists.
 
     Returns:
         Response | str: A redirect to another route if the user is not authenticated,
@@ -506,11 +647,12 @@ def user_account() -> Response | str:
         user = db.session.get(Users, current_user.id)
         list_data = json.loads(user.user_lists)
 
+        # Get the selected list's index from the modals in the template
         if request.method == 'POST':
             download_list_index = request.form.get('download_list_index')
             deleted_list_index = request.form.get('delete_list_index')
             edited_list_index = request.form.get('edit_list_index')
-            # Start editing the chosen to-do list
+            # Start editing the selected to-do list
             if edited_list_index is not None:
                 edited_list = list_data[int(edited_list_index)]
                 session['list_name'] = edited_list['list_name']
@@ -520,7 +662,7 @@ def user_account() -> Response | str:
                 session['edited_list_index'] = int(edited_list_index)
                 session.modified = True
                 return redirect(url_for('home'))
-            # Delete the chosen to-do list from the database
+            # Delete the selected to-do list from the database
             elif deleted_list_index is not None:
                 list_data.pop(int(deleted_list_index))
                 json_list_data = json.dumps(list_data)
@@ -531,17 +673,11 @@ def user_account() -> Response | str:
             elif download_form.validate_on_submit():
                 chosen_format = request.form.get('downloadOption')
                 downloaded_list = list_data[int(download_list_index)]
-                chosen_style = downloaded_list['style']
-                list_font = downloaded_list['font']
-                tasks_list = downloaded_list['tasks_list']
-                chosen_title = downloaded_list['list_name']
-                list_name = f'{current_user.username}\'s to-do list'
                 return download_file(chosen_format=chosen_format,
-                                     chosen_style=chosen_style,
-                                     list_font=list_font,
-                                     tasks_list=tasks_list,
-                                     list_name=list_name,
-                                     chosen_title=chosen_title)
+                                     chosen_style=downloaded_list['style'],
+                                     list_font=downloaded_list['font'],
+                                     tasks_list=downloaded_list['tasks_list'],
+                                     chosen_title=downloaded_list['list_name'])
         return render_template('user.html',
                                csrf_token=csrf_token,
                                download_form=download_form,
@@ -606,12 +742,14 @@ def add_user() -> Response | str:
                 form_password = form.password.data
                 result = db.session.execute(db.select(Users).where(Users.user_email == form_email))
                 user = result.scalar()
+                # Check if a user with the email provided already exists in the database
                 if user:
                     flash('This email already belongs to an existing account. Use it to log in', 'info')
                     form.password.data = ''
                     return redirect(url_for('account_login'))
                 else:
                     flash('Account created successfully', 'success')
+                    # Hash and salt the password provided and add the user to the database
                     hash_and_salted_password = generate_password_hash(form_password,
                                                                       method='pbkdf2:sha256',
                                                                       salt_length=8)
@@ -768,9 +906,8 @@ def logout() -> Response:
         Response: A response redirect to the home page after logging out.
     """
     logout_user()
-    session['edited_list_index'] = 'not_in_db'
     flash('You logged out of your account', 'success')
-    return clear_list()
+    return clear_list(True)
 
 
 @app.route('/update_profile', methods=['GET', 'POST'])
@@ -923,7 +1060,7 @@ def suggest_features() -> Response | str:
             comment = request.form['textarea']
             formatted_comment = comment.replace('\n', '<br>')
             send_suggestions_confirmation(commenter_email, formatted_comment)
-            flash('Your suggestions have been submitted. A confirmation email has been sent to your email')
+            flash('Your suggestions have been submitted. A confirmation email has been sent to your email', 'info')
             return redirect(url_for('suggest_features'))
     return render_template('suggest_features.html', form=form)
 
