@@ -19,7 +19,7 @@ import json
 app = Flask(__name__)
 
 # Add MySQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 # Additional security
@@ -134,7 +134,7 @@ def send_suggestions_confirmation(email: str, message: str) -> None:
         <p>Hello,</p>
         <p>your suggestions have been submitted to the creators. You can expect an answer in a few days.</p>
         <p>Here is the message you've submitted:</p>
-        <p><i>"{message}"<i/></p>
+        <p><i>"{message}"</i></p>
         <p>Do have a nice day,</p>
         <p>Jakub</p>
         <br>
