@@ -1,9 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-
+from flask import url_for
+#
 LIST_STYLES = {
     'plain': {
-        'path': 'static/images/plain.jpg',
+        'path': f'{url_for("static", filename="images/plain.jpg")}',
         'title_x': 520,
         'title_y': 84,
         'text_x': 130,
@@ -16,7 +17,7 @@ LIST_STYLES = {
         'max_body_length': 34.5
     },
     'retro': {
-        'path': 'static/images/retro.jpg',
+        'path': f'{url_for("static", filename="images/retro.jpg")}',
         'title_x': 470,
         'title_y': 154,
         'text_x': 150,
@@ -29,7 +30,7 @@ LIST_STYLES = {
         'max_body_length': 32.5
     },
     'notebook': {
-        'path': 'static/images/notebook.jpg',
+        'path': f'{url_for("static", filename="images/notebook.jpg")}',
         'title_x': 250,
         'title_y': 84,
         'text_x': 150,
@@ -209,8 +210,8 @@ def create_task_image(
     # Prepare the canvas and fonts
     img = Image.open(list_style['path'])
     draw = ImageDraw.Draw(img)
-    title_font = ImageFont.truetype(f'static/fonts/{list_font}.ttf', list_style['title_size'])
-    task_font = ImageFont.truetype(f'static/fonts/{list_font}.ttf', list_style['text_size'])
+    title_font = ImageFont.truetype(f'{url_for("static", filename=f"fonts/{list_font}.ttf")}', list_style['title_size'])
+    task_font = ImageFont.truetype(f'{url_for("static", filename=f"fonts/{list_font}.ttf")}', list_style['text_size'])
 
     # Draw the title
     if chosen_title:
