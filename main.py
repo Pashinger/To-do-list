@@ -19,7 +19,7 @@ import json
 app = Flask(__name__)
 
 # Add MySQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['JAWSDB_URL']
 
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
