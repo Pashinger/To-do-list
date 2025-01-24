@@ -14,6 +14,7 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
 from pdf_maker import create_task_image, calculate_body_length
 import json
+from waitress import serve
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -1111,3 +1112,4 @@ def page_not_found(e: Exception) -> tuple[str, int]:
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # serve(app, host='0.0.0.0', port=5000)
