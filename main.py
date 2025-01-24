@@ -14,14 +14,14 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from zenquotes_api import get_quote
 from pdf_maker import create_task_image, calculate_body_length
 import json
-from waitress import serve
+
 
 # Initialize the Flask application
 app = Flask(__name__)
 
 # Add MySQL database
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -1110,6 +1110,5 @@ def page_not_found(e: Exception) -> tuple[str, int]:
     return render_template('500.html'), 500
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    # serve(app, host='0.0.0.0', port=5000)
+# if __name__ == '__main__':
+#     app.run(debug=True)
