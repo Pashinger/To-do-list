@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Add MySQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
-# {{ form.recaptcha }}
+
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 # Additional security
@@ -765,6 +765,8 @@ def add_user() -> Response | str:
                     login_user(user)
                     next_page = request.args.get('next')
                     return redirect(next_page or url_for('home'))
+            else:
+                return 'coś się spitoliło'
         return render_template('add_user.html',
                                form=form)
 
