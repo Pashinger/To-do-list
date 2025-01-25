@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Add MySQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
-
+# {{ form.recaptcha }}
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 # Additional security
