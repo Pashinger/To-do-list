@@ -740,6 +740,7 @@ def add_user() -> Response | str:
         form = CreateAccountForm()
         if request.method == 'POST':
             if form.validate_on_submit():
+                print('WESZŁO DO FORMY')
                 form_username = form.username.data
                 form_email = form.email.data
                 form_password = form.password.data
@@ -766,7 +767,7 @@ def add_user() -> Response | str:
                     next_page = request.args.get('next')
                     return redirect(next_page or url_for('home'))
             else:
-                return 'coś się spitoliło'
+                return 'coś się spitoliło i nie weszło do formy'
         return render_template('add_user.html',
                                form=form)
 
