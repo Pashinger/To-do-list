@@ -21,17 +21,21 @@ app = Flask(__name__)
 
 # Add MySQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+
 # Additional security
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 # Email configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
 app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+
 # Recaptcha configuration
 app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
@@ -44,10 +48,13 @@ mail = Mail(app)
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
+
 # Bootstrap
 Bootstrap(app)
+
 # Create the extension
 db = SQLAlchemy(app)
+
 # Configure Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -1108,7 +1115,3 @@ def page_not_found(e: Exception) -> tuple[str, int]:
                          and the status code.
     """
     return render_template('500.html'), 500
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
