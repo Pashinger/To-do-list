@@ -348,8 +348,11 @@ def home() -> Response | str:
         # Save changes to an edited task
         if edit_form.validate_on_submit() and form_id == 'edit_form':
             new_task_color = request.form.get('taskColor')
+            print(form_id, new_task_color)
             new_task_data = edit_form.edited_task.data
             return redirect(url_for('save_changed_task', new_task_color=new_task_color, new_task_data=new_task_data))
+        else:
+            print('beagle pies fajny jest')
         # Add a new task to the to-do list
         if add_form.validate_on_submit() and form_id == 'add_form':
             task_color = request.form.get('taskColor')
@@ -740,7 +743,6 @@ def add_user() -> Response | str:
         form = CreateAccountForm()
         if request.method == 'POST':
             if form.validate_on_submit():
-                print('WESZŁO DO FORMY')
                 form_username = form.username.data
                 form_email = form.email.data
                 form_password = form.password.data
@@ -767,7 +769,7 @@ def add_user() -> Response | str:
                     next_page = request.args.get('next')
                     return redirect(next_page or url_for('home'))
             else:
-                return 'coś się spitoliło i nie weszło do formy'
+                return redirect(url_for('add_user'))
         return render_template('add_user.html',
                                form=form)
 
