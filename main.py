@@ -21,8 +21,6 @@ app = Flask(__name__)
 
 # Add MySQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
-
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 # Additional security
@@ -38,7 +36,6 @@ app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
 app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
-app.config['RECAPTCHA_API_SERVER'] = os.environ.get('RECAPTCHA_API_SERVER')
 
 # Token salt
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
@@ -60,7 +57,7 @@ login_manager.login_message = 'You need to log in to access user settings'
 
 @app.before_request
 def make_session_permanent() -> None:
-    """Set session to permanent with a lifetime of 1 days."""
+    """Set session to permanent with a lifetime of 1 day."""
     session.permanent = True
     app.permanent_session_lifetime = timedelta(days=1)
 
@@ -809,7 +806,7 @@ def forgot_password() -> Response | str:
                         the token sent is still active.
     """
     form = ForgotLoginForm()
-    if request.method == 'POST':
+    if form.validate_on_submit():
         user_email = form.provide_email.data
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
