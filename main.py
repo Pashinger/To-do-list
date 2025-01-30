@@ -348,11 +348,8 @@ def home() -> Response | str:
         # Save changes to an edited task
         if edit_form.validate_on_submit() and form_id == 'edit_form':
             new_task_color = request.form.get('taskColor')
-            print(form_id, new_task_color)
             new_task_data = edit_form.edited_task.data
             return redirect(url_for('save_changed_task', new_task_color=new_task_color, new_task_data=new_task_data))
-        else:
-            print('beagle pies fajny jest')
         # Add a new task to the to-do list
         if add_form.validate_on_submit() and form_id == 'add_form':
             task_color = request.form.get('taskColor')
@@ -586,7 +583,7 @@ def save_list() -> Response:
         return redirect(url_for('home'))
 
 
-@app.route('/save_changed_task/<new_task_color>/<task_data>')
+@app.route('/save_changed_task/<new_task_color>/<new_task_data>')
 def save_changed_task(new_task_color: str, new_task_data: str) -> Response:
     """Save the edits made to an already created task in session's tasks_list.
 
