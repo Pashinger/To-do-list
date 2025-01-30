@@ -39,7 +39,7 @@ app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
 app.config['RECAPTCHA_API_SERVER'] = os.environ.get('RECAPTCHA_API_SERVER')
-# app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
+
 # Token salt
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
 
@@ -782,7 +782,7 @@ def forgot_username() -> Response | str:
                          to the user email or if the email provided is invalid.
     """
     form = ForgotLoginForm()
-    if request.method == 'POST':
+    if form.validate_on_submit():
         user_email = form.provide_email.data
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
