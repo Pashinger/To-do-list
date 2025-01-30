@@ -29,7 +29,7 @@ class CreateAccountForm(FlaskForm):
     username = StringField('Write your username:', validators=[DataRequired(), Length(min=2, max=16)])
     email = EmailField('Write your e-mail:', validators=[DataRequired(), Email()])
     password = PasswordField('Write your password:', validators=[DataRequired(), Length(min=8, max=60)])
-    # recaptcha = RecaptchaField()
+    recaptcha = RecaptchaField()
     sign_up_submit = SubmitField('Create an account')
 
 
