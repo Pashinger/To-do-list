@@ -60,9 +60,9 @@ login_manager.login_message = 'You need to log in to access user settings'
 
 @app.before_request
 def make_session_permanent() -> None:
-    """Set session to permanent with a lifetime of 7 days."""
+    """Set session to permanent with a lifetime of 1 days."""
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(days=7)
+    app.permanent_session_lifetime = timedelta(days=1)
 
 
 def generate_reset_token(user_email: str) -> tuple[str, datetime]:
