@@ -38,7 +38,8 @@ app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
 app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
-app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
+app.config['RECAPTCHA_API_SERVER'] = os.environ.get('RECAPTCHA_API_SERVER')
+# app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
 # Token salt
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
 
