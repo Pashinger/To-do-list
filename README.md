@@ -1,6 +1,6 @@
 <h1>To-do-list</h1>
 A website that allows for fast and flexible creation and modification of to-do lists, with options to save and download them in various styles and formats.
-<h3><a href="https://create-your-own-to-do-list-app-bb65387bda14.herokuapp.com/" target="blank">check out the website here</a></h3>
+<h3><a href="https://create-your-own-to-do-list-app-bb65387bda14.herokuapp.com/" target="blank">-->Explore the website here<--</a></h3>
 <h2>Main features</h2>
 <ul>
     <li>Effortless creation, modification, and labeling of to-do lists</li>
