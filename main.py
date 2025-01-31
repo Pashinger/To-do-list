@@ -15,27 +15,32 @@ from zenquotes_api import get_quote
 from pdf_maker import create_task_image, calculate_body_length
 import json
 
+
 # Initialize the Flask application
 app = Flask(__name__)
 
 # Add MySQL database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+
 # Additional security
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 # Email configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
 app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+
 # Recaptcha configuration
 app.config['RECAPTCHA_USE_SSL'] = False
 app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
 app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
-app.config['RECAPTCHA_OPTIONS'] = {'theme': 'black'}
+
 # Token salt
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT')
 
@@ -43,10 +48,13 @@ mail = Mail(app)
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
+
 # Bootstrap
 Bootstrap(app)
+
 # Create the extension
 db = SQLAlchemy(app)
+
 # Configure Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,9 +64,9 @@ login_manager.login_message = 'You need to log in to access user settings'
 
 @app.before_request
 def make_session_permanent() -> None:
-    """Set session to permanent with a lifetime of 7 days."""
+    """Set session to permanent with a lifetime of 1 day."""
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(days=7)
+    app.permanent_session_lifetime = timedelta(days=1)
 
 
 def generate_reset_token(user_email: str) -> tuple[str, datetime]:
@@ -580,7 +588,7 @@ def save_list() -> Response:
         return redirect(url_for('home'))
 
 
-@app.route('/save_changed_task/<new_task_color>/<task_data>')
+@app.route('/save_changed_task/<new_task_color>/<new_task_data>')
 def save_changed_task(new_task_color: str, new_task_data: str) -> Response:
     """Save the edits made to an already created task in session's tasks_list.
 
@@ -762,6 +770,8 @@ def add_user() -> Response | str:
                     login_user(user)
                     next_page = request.args.get('next')
                     return redirect(next_page or url_for('home'))
+            else:
+                return redirect(url_for('add_user'))
         return render_template('add_user.html',
                                form=form)
 
@@ -776,7 +786,7 @@ def forgot_username() -> Response | str:
                          to the user email or if the email provided is invalid.
     """
     form = ForgotLoginForm()
-    if request.method == 'POST':
+    if form.validate_on_submit():
         user_email = form.provide_email.data
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
@@ -803,7 +813,7 @@ def forgot_password() -> Response | str:
                         the token sent is still active.
     """
     form = ForgotLoginForm()
-    if request.method == 'POST':
+    if form.validate_on_submit():
         user_email = form.provide_email.data
         user = db.session.execute(db.select(Users).where(Users.user_email == user_email)).scalar()
         if user:
@@ -1105,9 +1115,3 @@ def page_not_found(e: Exception) -> tuple[str, int]:
                          and the status code.
     """
     return render_template('500.html'), 500
-
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
