@@ -37,3 +37,10 @@ A website that allows for fast and flexible creation and modification of to-do l
 </ul>        
 <h2>Licence</h2>
 This project is licensed under the MIT License - see the LICENSE.txt file for details.
+<h2>Screenshots</h2>
+![to-do list screenshot 1](https://github.com/user-attachments/assets/b6c47567-f865-4b17-9deb-a8b8817e4a4e)
+![to-do list screenshot 2](https://github.com/user-attachments/assets/1e8e825a-cd60-4470-9709-9d3775aa12e1)
+![to-do list screenshot 3](https://github.com/user-attachments/assets/63e7c417-f606-49da-bfd8-29d4a25f2650)
+![to-do list screenshot 4](https://github.com/user-attachments/assets/733b8634-1046-43b1-b237-e6c3fe8ea637)
+![to-do list screenshot 5](https://github.com/user-attachments/assets/b27cd1f8-1a82-4f7a-986d-caff4ee9a514)
+![to-do list screenshot 6](https://github.com/user-attachments/assets/56996b31-0ec7-49d3-aedb-a0e7a1aa0630)
