@@ -1121,7 +1121,6 @@ def page_not_found(e: Exception) -> tuple[str, int]:
 
 
 #TODO:
-# 0. MUSISZ ZMIENIĆ JEDNĄ RZECZ DOBRZE, DEPLOYOWAĆ I ZOBACZYĆ CZY DOBRZE SIĘ WYŚWIETLA NA TELEFONIE, INACZEJ BEZSENSU!
 # 2. responsive about, features się rozjeżdżają (muszą być nad sobą na najmniejszym?)
 # 3. motivation.html musi się zmniejszyć czcionka albo coś, rozjeżdża się sentencja
 # 4. footer rozjechany, robią się dwie linijki

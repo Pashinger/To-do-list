@@ -36,9 +36,22 @@
     100%{background-position:0% 60%}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 575px) {
     .form-floating label {
-        font-size: 0.80rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .custom-xs-font {
+        font-size: 1.4rem !important;
+    }
+}
+
+@media (max-width: 475px) {
+    .options-svg {
+        width: 1.2em;
+        height: 1.2em;
     }
 }
 

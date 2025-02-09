@@ -54,7 +54,7 @@
 </div>
 
 <div class="modal fade" id="EditOptions" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog border border-dark rounded-3" style="max-width: 700px;">
+  <div class="modal-dialog border border-dark rounded-3" style="max-width: 650px;">
     <div class="modal-content">
       <form method="POST">
       <input type="hidden" name="form_id" value="edit_list">
@@ -107,7 +107,7 @@
           <hr>
           <div class="form-floating d-flex justify-content-center">
               <div class="row text-center">
-                <div class="col">
+                <div class="col-12 col-sm-4">
                   <img src="static/images/plain.jpg" alt="plain style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
                   <div class="form-check">
                     {% if style == 'plain' %}
@@ -119,7 +119,7 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="col">
+                <div class="col-12 col-sm-4">
                   <img src="static/images/retro.jpg" alt="retro style" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
                   <div class="form-check">
                     {% if style == 'retro' %}
@@ -131,7 +131,7 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="col">
+                <div class="col-12 col-sm-4">
                   <img src="static/images/notebook.jpg" alt="notebook" class="img-thumbnail border-0" style="max-width: 100px; max-height: 120px;">
                   <div class="form-check">
                     {% if style == 'notebook' %}
@@ -256,24 +256,24 @@
   </div>
 </div>
 
-<div class="d-flex flex-wrap flex-column flex-row p-5 gap-4 align-items-center justify-content-center col">
-  <div class="list-group col-12 col-sm-12 col-md-10 col-lg-11 col-xl-9 col-xxl-8 p-5 mt-5 mb-5 bg-body-tertiary border border-dark border-2">
-    <div class="d-flex bg-body-secondary pt-3 pb-3 gap-1 ps-4 pe-4 ps-md-5 pe-md-4 border border-bottom-0 rounded-top align-items-center position-relative">
-       <h2 class="flex-grow-1">{{ list_name }}</h2>
+<div class="d-flex flex-wrap flex-column flex-row p-3 p-sm-5 gap-4 align-items-center justify-content-center col">
+  <div class="list-group col-12 col-sm-12 col-md-10 col-lg-11 col-xl-9 col-xxl-8 p-4 p-sm-5 mt-2 mb-2 mt-sm-5 mb-sm-5 bg-body-tertiary border border-dark border-2">
+    <div class="d-flex bg-body-secondary pt-3 pb-3 ps-3 pe-3 ps-sm-4 pe-sm-4 ps-md-5 gap-1 border border-bottom-0 rounded-top align-items-center position-relative">
+       <h2 class="flex-grow-1 custom-xs-font">{{ list_name }}</h2>
         <div class="d-flex flex-wrap align-items-center justify-content-end position-relative w-auto">
           <div class="d-flex">
               <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 {% if list_modified == 'not_in_db' %}
                 <button class="btn d-block d-sm-inline-block border-0 focus-ring focus-ring-dark rounded-4" name="action" value="save" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Save your list" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentCol or" class="bi bi-floppy2-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentCol or" class="bi bi-floppy2-fill options-svg" viewBox="0 0 16 16">
                     <path d="M12 2h-2v3h2z"/>
                     <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V2.914a1.5 1.5 0 0 0-.44-1.06L14.147.439A1.5 1.5 0 0 0 13.086 0zM4 6a1 1 0 0 1-1-1V1h10v4a1 1 0 0 1-1 1zM3 9h10a1 1 0 0 1 1 1v5H2v-5a1 1 0 0 1 1-1"/>
                   </svg>
                 </button>
                 {% else %}
                 <button class="btn border-0 focus-ring focus-ring-dark rounded-4" name="action" value="save" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Keep changes to your saved list" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentCol or" class="bi bi-floppy2-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentCol or" class="bi bi-floppy2-fill options-svg" viewBox="0 0 16 16">
                     <path d="M12 2h-2v3h2z"/>
                     <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V2.914a1.5 1.5 0 0 0-.44-1.06L14.147.439A1.5 1.5 0 0 0 13.086 0zM4 6a1 1 0 0 1-1-1V1h10v4a1 1 0 0 1-1 1zM3 9h10a1 1 0 0 1 1 1v5H2v-5a1 1 0 0 1 1-1"/>
                   </svg>
@@ -283,7 +283,7 @@
             <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit options">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#EditOptions" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-pencil options-svg" viewBox="0 0 16 16">
                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
                   </svg>
                 </button>
@@ -293,7 +293,7 @@
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="submit" name="action" value="new" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Clear all tasks and start over" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-arrow-counterclockwise options-svg" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/>
                     <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/>
                   </svg>
@@ -302,7 +302,7 @@
             <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Download this list">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#DownloadOptions" style="--bs-focus-ring-x: 2px; --bs-focus-ring-y: 2px;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-file-earmark-arrow-down options-svg" viewBox="0 0 16 16">
                     <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
                     <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
                   </svg>
