@@ -1,5 +1,14 @@
+.api-string {
+    font-size: 1rem;
+}
+
 .centered_div {
     text-align: center;
+}
+
+.cube-img {
+    width: 50px;
+    height: 50px;
 }
 
 .form-floating textarea {
@@ -36,6 +45,24 @@
     100%{background-position:0% 60%}
 }
 
+@media (max-width: 992px) {
+    .api-string {
+        font-size: 0.80rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .api-string {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .api-string {
+        font-size: 0.50rem;
+    }
+}
+
 @media (max-width: 575px) {
     .form-floating label {
         font-size: 0.75rem;
@@ -45,6 +72,13 @@
 @media (max-width: 400px) {
     .custom-xs-font {
         font-size: 1.4rem !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .cube-img {
+        width: 35px;
+        height: 35px;
     }
 }
 
