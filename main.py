@@ -20,8 +20,8 @@ import json
 app = Flask(__name__)
 
 # Add MySQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
-
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 
@@ -1115,3 +1115,16 @@ def page_not_found(e: Exception) -> tuple[str, int]:
                          and the status code.
     """
     return render_template('500.html'), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+#TODO:
+# 0. MUSISZ ZMIENIĆ JEDNĄ RZECZ DOBRZE, DEPLOYOWAĆ I ZOBACZYĆ CZY DOBRZE SIĘ WYŚWIETLA NA TELEFONIE, INACZEJ BEZSENSU!
+# 2. responsive about, features się rozjeżdżają (muszą być nad sobą na najmniejszym?)
+# 3. motivation.html musi się zmniejszyć czcionka albo coś, rozjeżdża się sentencja
+# 4. footer rozjechany, robią się dwie linijki
+# 5. login - mniejszy button wchodzi nad większy a to ważna stronka
+# 6. user się rozkraczył, po 3 literkach przy najmniejszym ustawieniu a z user lists nie mieszczą się ikonki edycji itd
+# 7. navbar wariuje i robi się hamburger menu
