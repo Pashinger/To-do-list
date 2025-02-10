@@ -31,7 +31,7 @@
                       Inspirational quotes provided by <a href="https://zenquotes.io/" target="_blank">ZenQuotes API</a>
                   </small>
                   <a class="focus-ring focus-ring-secondary border-0 rounded-4 position-absolute end-0" href="{{ url_for('motivational_quotes') }}" style="--bs-focus-ring-x: 6px; --bs-focus-ring-y: 6px; --bs-focus-ring-blur: 4px">
-                      <img class="cube-img" src="{{ url_for('static', filename='images/dice.png') }}" alt="new quote">
+                      <img class="cube-img" src="{{ url_for('static', filename='images/dice.png') }}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Get a new quote" alt="new quote">
                   </a>
           </div>
     </div>
