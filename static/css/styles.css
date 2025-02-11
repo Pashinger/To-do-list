@@ -11,6 +11,11 @@
     height: 50px;
 }
 
+.delete-svg {
+    width: 2rem;
+    height: 2.5rem;
+}
+
 .form-floating textarea {
   resize: vertical;
   height: auto;
@@ -57,7 +62,7 @@
     }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 430px) {
     .api-string {
         font-size: 0.50rem;
     }
@@ -86,6 +91,20 @@
     .options-svg {
         width: 1.2em;
         height: 1.2em;
+    }
+}
+
+@media (max-width: 430px) {
+    .delete-svg {
+        width: 3em;
+        height: 3em;
+    }
+}
+
+@media (max-width: 430px) {
+    .responsive-recaptcha {
+        transform: scale(0.80);
+        transform-origin: center;
     }
 }
 

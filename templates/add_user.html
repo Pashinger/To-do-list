@@ -2,13 +2,13 @@
 
 {% block content %}
 
-<div class="modal modal-sheet position-static d-block p-5" tabindex="-1" role="dialog" id="modalSignin">
+<div class="modal modal-sheet position-static d-block p-3 p-sm-5" tabindex="-1" role="dialog" id="modalSignin">
   <div class="modal-dialog" role="document">
     <div class="modal-content border-2 border-dark rounded-4 shadow">
-      <div class="modal-header p-5 pb-4 border-bottom-0 justify-content-center">
+      <div class="modal-header px-4 px-sm-5 pt-4 pt-sm-5 pb-4 border-bottom-0 justify-content-center">
         <h1 class="fw-bold mb-0 fs-2">Create a new account</h1>
       </div>
-      <div class="modal-body p-5 pt-0">
+      <div class="modal-body pb-4 pb-sm-5 px-4 px-sm-5 pt-0">
         <form method="POST">
           {{ form.hidden_tag() }}
           <div class="form-floating mb-3">
@@ -23,7 +23,7 @@
               {{ form.password(class="form-control", id="floatingInput", placeholder="example_password") }}
               {{ form.password.label(class="form-label", for="floatingInput") }}
           </div>
-          <div class="form-floating mb-3 d-flex justify-content-center">
+          <div class="responsive-recaptcha form-floating mb-3 d-flex justify-content-center">
             {{ form.recaptcha }}
           </div>
           {{ form.sign_up_submit(class="btn btn-dark w-100") }}

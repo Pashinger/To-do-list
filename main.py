@@ -1121,7 +1121,5 @@ if __name__ == '__main__':
 
 
 #TODO:
-# 4. footer rozjechany, robią się dwie linijki
-# 5. login - mniejszy button wchodzi nad większy a to ważna stronka
 # 6. user się rozkraczył, po 3 literkach przy najmniejszym ustawieniu a z user lists nie mieszczą się ikonki edycji itd
 # 7. navbar wariuje i robi się hamburger menu
