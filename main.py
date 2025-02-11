@@ -20,8 +20,8 @@ import json
 app = Flask(__name__)
 
 # Add MySQL database
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('JAWSDB_URL')
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 # Secret key
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 
@@ -1116,8 +1116,8 @@ def page_not_found(e: Exception) -> tuple[str, int]:
     """
     return render_template('500.html'), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
 
 
 #TODO:
