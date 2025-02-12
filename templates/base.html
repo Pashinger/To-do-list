@@ -39,6 +39,43 @@
       });
     </script>
     <script>
+        document.querySelectorAll("[data-bs-toggle='tooltip']").forEach((el) => {
+            let pressTimer;
+
+            el.addEventListener("touchstart", function () {
+                pressTimer = setTimeout(() => {
+                    new bootstrap.Tooltip(el).show();
+                }, 500); // Tooltip shows after 500ms
+            });
+
+            el.addEventListener("touchend", function () {
+                clearTimeout(pressTimer);
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("click", function (event) {
+            document.querySelectorAll("[data-bs-toggle='tooltip']").forEach((el) => {
+                let tooltipInstance = bootstrap.Tooltip.getInstance(el);
+
+                if (!event.target.closest("[data-bs-toggle='tooltip']")) {
+                    if (tooltipInstance) {
+                        tooltipInstance.hide();  // Hide tooltip
+                        tooltipInstance.dispose();  // Fully remove the tooltip instance
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("show.bs.modal", function () {
+            let tooltips = document.querySelectorAll("[data-bs-toggle='tooltip']");
+            tooltips.forEach((tooltip) => {
+                bootstrap.Tooltip.getInstance(tooltip)?.dispose();
+            });
+        });
+    </script>
+    <script>
         setTimeout(function() {
           let alerts = document.querySelectorAll('.alert');
           alerts.forEach(function(alert) {

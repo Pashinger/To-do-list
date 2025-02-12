@@ -15,13 +15,13 @@
         You have an unsaved to-do-list on the home page. Click 'Cancel' if you want to save it, otherwise it will
         be erased once you edit this list.
       </div>
-        <div class="modal-footer d-flex w-100">
+        <div class="modal-footer d-flex col-12 w-100">
           <form method="POST" class="flex-fill">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="edit_list_index" id="edit_list_index">
-            <button type="submit" class="btn btn-success w-100">Edit this list</button>
+            <button type="submit" class="btn btn-success col-6 w-100">Edit this list</button>
           </form>
-          <a href="{{ url_for('user_account') }}" class="btn btn-dark flex-fill text-center" data-bs-dismiss="modal">Cancel</a>
+          <a href="{{ url_for('user_account') }}" class="btn btn-dark col-6 text-center" data-bs-dismiss="modal">Cancel</a>
         </div>
     </div>
   </div>
@@ -100,12 +100,12 @@
   </div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center m-5 p-5">
-    <div class="card border-dark border-2 p-5 rounded-3 col-8">
+<div class="d-flex justify-content-center align-items-center m-0 m-md-5 p-4 p-sm-5">
+    <div class="card border-dark border-2 p-4 p-md-5 rounded-3 col-12 col-lg-10 col-xl-8">
       <div class="d-flex align-items-center position-relative px-4">
-        <h1 class="text-center fs-2 ms-auto">Your to-do lists</h1>
+        <h1 class="text-center pt-1 pt-sm-0 mb-0 mb-sm-2 user-lists-string ms-auto">Your to-do lists</h1>
         <a href="{{ url_for('make_a_new_list') }}" class="text-dark ms-auto">
-          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-plus-circle-fill new-list-sm-svg" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
           </svg>
         </a>
@@ -116,7 +116,7 @@
       <div class="row row-cols g-3">
         <div class="d-flex pt-1 justify-content-between align-items-center w-100">
           <div class="d-flex align-items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="2.5em" height="2.5em" fill="currentColor" class="bi bi-square-fill me-1 text-{{ loop.cycle('danger', 'warning', 'primary', 'success', 'secondary') }}" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-square-fill list-color-svg me-1 text-{{ loop.cycle('danger', 'warning', 'primary', 'success', 'secondary') }}" viewBox="0 0 16 16">
               <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z"/>
             </svg>
             <p class="ms-2 mb-0 small lh-sm">
@@ -128,18 +128,18 @@
               {% endif %}
             </p>
           </div>
-          <div class="d-flex align-items-center">
+          <div class="d-flex flex-column flex-lg-row align-items-center ps-2 ps-ms-3">
             <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit this list">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               {% if show_edit_modal %}
               <button class="btn border-0 focus-ring focus-ring-dark rounded-4" name="edit_btn" type="button" data-bs-toggle="modal" data-bs-target="#EditProceed" data-index="{{ loop.index0 }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-pencil user-list-option-svg" viewBox="0 0 16 16">
                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
                 </svg>
               </button>
               {% else %}
               <button class="btn border-0 focus-ring focus-ring-dark rounded-4" name="edit_list_index" type="submit" value="{{ loop.index0 }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-pencil user-list-option-svg" viewBox="0 0 16 16">
                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
                 </svg>
               </button>
@@ -148,7 +148,7 @@
             <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Download this list">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#DownloadOptions" data-index="{{ loop.index0 }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file-earmark-arrow-down user-list-option-svg" viewBox="0 0 16 16">
                   <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
                   <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
                 </svg>
@@ -156,13 +156,13 @@
             </form>
             {% if list_modified == 'not_in_db' %}
             <button class="btn border-0 focus-ring focus-ring-dark rounded-4" type="button" data-bs-toggle="modal" data-bs-target="#DeleteList" data-index="{{ loop.index0 }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Delete this list" data-bs-offset="0, 15">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-x-lg user-list-option-svg" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Delete this list" data-bs-offset="0, 15">
                   <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                 </svg>
             </button>
             {% else %}
             <button class="btn border-0 rounded-4" type="button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" fill="currentColor" class="bi bi-x-lg text-secondary" viewBox="0 0 16 16"  data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Deleting lists is disabled. Finish editing your list on the home page first" data-bs-offset="0, 15">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-x-lg text-secondary user-list-option-svg" viewBox="0 0 16 16"  data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Deleting lists is disabled. Finish editing your list on the home page first" data-bs-offset="0, 15">
                   <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                 </svg>
             </button>
@@ -177,14 +177,14 @@
 </div>
 
 {% else %}
-<div class="d-flex justify-content-center align-items-center m-5 p-5">
-  <div class="card border-dark border-2 pt-5 px-5 pb-4 text-center bg-body-tertiary rounded-3 col-8">
+<div class="d-flex justify-content-center align-items-center py-4 py-sm-5 px-4 px-sm-5 m-0 m-md-5">
+  <div class="card border-dark border-2 pt-3 pt-sm-5 px-3 px-sm-5 pb-4 text-center bg-body-tertiary rounded-3 col-12 col-md-10 col-lg-8">
       <div class="card-body">
           <h2><strong>You haven't saved a list yet!</strong></h2>
           <h2><strong>Make a new one:</strong></h2>
           <br>
           <a href="{{ url_for('home') }}" class="text-dark">
-            <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-plus-circle-fil new-list-svg" viewBox="0 0 16 16">
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
             </svg>
           </a>

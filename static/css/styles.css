@@ -1,5 +1,19 @@
+.api-string {
+    font-size: 1rem;
+}
+
 .centered_div {
     text-align: center;
+}
+
+.cube-img {
+    width: 50px;
+    height: 50px;
+}
+
+.delete-svg {
+    width: 2rem;
+    height: 2.5rem;
 }
 
 .form-floating textarea {
@@ -20,6 +34,30 @@
     animation: CustomGradient 60s ease infinite;
 }
 
+.new-list-svg {
+    width: 4rem;
+    height: 4rem;
+}
+
+.new-list-sm-svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.list-color-svg {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.user-lists-string {
+    font-size: 2rem;
+}
+
+.user-list-option-svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
 @-webkit-keyframes CustomGradient {
     0%{background-position:0% 60%}
     50%{background-position:100% 41%}
@@ -34,6 +72,98 @@
     0%{background-position:0% 60%}
     50%{background-position:100% 41%}
     100%{background-position:0% 60%}
+}
+
+@media (max-width: 992px) {
+    .api-string {
+        font-size: 0.80rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .api-string {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .api-string {
+        font-size: 0.50rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .form-floating label {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .custom-xs-font {
+        font-size: 1.4rem !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .cube-img {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 475px) {
+    .options-svg {
+        width: 1.2em;
+        height: 1.2em;
+    }
+}
+
+@media (max-width: 430px) {
+    .delete-svg {
+        width: 3em;
+        height: 3em;
+    }
+}
+
+@media (max-width: 430px) {
+    .new-list-svg {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .new-list-sm-svg {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .list-color-svg {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .user-lists-string {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .user-list-option-svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+@media (max-width: 430px) {
+    .responsive-recaptcha {
+        transform: scale(0.80);
+        transform-origin: center;
+    }
 }
 
 [class*="border-"] {

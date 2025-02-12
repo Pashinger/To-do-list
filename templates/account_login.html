@@ -2,13 +2,13 @@
 
 {% block content %}
 
-<div class="modal modal-sheet position-static d-block p-4 py-md-5" tabindex="-1" role="dialog" id="modalSignin">
+<div class="modal modal-sheet position-static d-block p-3 p-sm-5" tabindex="-1" role="dialog" id="modalSignin">
   <div class="modal-dialog" role="document">
     <div class="modal-content border-2 border-dark rounded-4 shadow">
-      <div class="modal-header p-5 pb-4 border-bottom-0">
+      <div class="modal-header px-4 px-sm-5 pt-4 pt-sm-5 pb-4 border-bottom-0">
         <h1 class="fw-bold mb-0 fs-2 text-center w-100">Log in to your account</h1>
       </div>
-      <div class="modal-body p-5 pt-0">
+      <div class="modal-body pb-4 pb-sm-5 px-4 px-sm-5 pt-0">
         <form method="POST">
           {{ form.hidden_tag() }}
           <div class="form-floating mb-3">
@@ -19,8 +19,8 @@
             {{ form.password(class="form-control", id="floatingPassword", placeholder="Write your password:") }}
             {{ form.password.label(class="form-label", id="floatingPassword") }}
           </div>
-            {{ form.login_submit(class="btn btn-dark") }}
-            <a class="btn btn-dark float-end" href="{{ url_for('add_user') }}">Do not have an account? Register here</a>
+            {{ form.login_submit(class="btn btn-dark mb-2 mb-sm-3 w-100") }}
+            <a class="btn btn-dark mb-3 w-100 float-end" href="{{ url_for('add_user') }}">Do not have an account? Register here</a>
             <hr class="my-4">
             <div class="d-block text-center">
                 <a class="text-decoration-none" href="{{ url_for('forgot_username') }}">Forgot your username</a> or

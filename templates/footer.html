@@ -1,8 +1,8 @@
-<footer class="d-flex flex-wrap justify-content-between align-items-center bg-light py-3 border-dark border-2 border-top mt-auto">
-  <p class="col-md-4 mb-0 ps-4">Make your own to-do list!</p>
-  <p class="col-md-4 mb-0 text-center">© Copyright Jakub Gniewek</p>
-  <ul class="nav col-md-4 pe-3 justify-content-end">
-    <li class="nav-item"><a href="{{ url_for('about') }}" class="nav-link px-2 text-dark">About</a></li>
-    <li class="nav-item"><a href="{{ url_for('suggest_features') }}" class="nav-link px-4 text-dark">Suggest features</a></li>
+<footer class="d-flex flex-column flex-md-row flex-wrap justify-content-between align-items-center bg-light pb-3 pt-2 pt-sm-3 border-dark border-2 border-top mt-auto text-center text-md-start">
+  <p class="col-12 col-md-4 order-2 order-md-1 ps-0 ps-md-4 mb-0 justify-content-center justify-content-md-start">Make your own to-do list!</p>
+  <p class="col-12 col-md-4 order-2 order-md-3 mb-0 justify-content-center text-center">© Copyright Jakub Gniewek</p>
+  <ul class="nav col-12 col-md-4 order-1 order-md-3 pe-0 pe-md-4 justify-content-center justify-content-md-end">
+    <li class="nav-item"><a href="{{ url_for('about') }}" class="nav-link px-2 py-1 text-dark">About</a></li>
+    <li class="nav-item"><a href="{{ url_for('suggest_features') }}" class="nav-link px-2 py-1 text-dark">Suggest features</a></li>
   </ul>
 </footer>
