@@ -100,10 +100,10 @@
   </div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center m-5 p-5">
-    <div class="card border-dark border-2 p-5 rounded-3 col-8">
+<div class="d-flex justify-content-center align-items-center m-0 m-sm-5 p-4 p-sm-5">
+    <div class="card border-dark border-2 p-4 p-sm-5 rounded-3 col-12 col-lg-10 col-xl-8">
       <div class="d-flex align-items-center position-relative px-4">
-        <h1 class="text-center fs-2 ms-auto">Your to-do lists</h1>
+        <h1 class="text-center pt-1 pt-sm-0 mb-0 mb-sm-2 fs-2 ms-auto">Your to-do lists</h1>
         <a href="{{ url_for('make_a_new_list') }}" class="text-dark ms-auto">
           <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Make a new list">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
@@ -114,7 +114,7 @@
       <hr>
       {% for user_list in list_data %}
       <div class="row row-cols g-3">
-        <div class="d-flex pt-1 justify-content-between align-items-center w-100">
+        <div class="d-flex pt-1 g-3 justify-content-between align-items-center w-100">
           <div class="d-flex align-items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="2.5em" height="2.5em" fill="currentColor" class="bi bi-square-fill me-1 text-{{ loop.cycle('danger', 'warning', 'primary', 'success', 'secondary') }}" viewBox="0 0 16 16">
               <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z"/>
@@ -128,7 +128,7 @@
               {% endif %}
             </p>
           </div>
-          <div class="d-flex align-items-center">
+          <div class="d-flex flex-column flex-lg-row align-items-center ps-2 ps-ms-3">
             <form method="POST" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-title="Edit this list">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               {% if show_edit_modal %}
@@ -177,14 +177,14 @@
 </div>
 
 {% else %}
-<div class="d-flex justify-content-center align-items-center m-5 p-5">
-  <div class="card border-dark border-2 pt-5 px-5 pb-4 text-center bg-body-tertiary rounded-3 col-8">
+<div class="d-flex justify-content-center align-items-center py-4 py-sm-5 px-4 px-sm-5 m-0 m-md-5">
+  <div class="card border-dark border-2 pt-3 pt-sm-5 px-3 px-sm-5 pb-4 text-center bg-body-tertiary rounded-3 col-12 col-md-10 col-lg-8">
       <div class="card-body">
           <h2><strong>You haven't saved a list yet!</strong></h2>
           <h2><strong>Make a new one:</strong></h2>
           <br>
           <a href="{{ url_for('home') }}" class="text-dark">
-            <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-plus-circle-fil new-list-svg" viewBox="0 0 16 16">
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
             </svg>
           </a>
