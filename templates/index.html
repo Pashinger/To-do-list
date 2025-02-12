@@ -258,7 +258,7 @@
 
 <div class="d-flex flex-wrap flex-column flex-row p-3 p-sm-5 gap-4 align-items-center justify-content-center col">
   <div class="list-group col-12 col-sm-12 col-md-10 col-lg-11 col-xl-9 col-xxl-8 p-4 p-sm-5 mt-4 mb-4 mt-sm-5 mb-sm-5 bg-body-tertiary border border-dark border-2">
-    <div class="d-flex bg-body-secondary pt-3 pb-3 ps-3 pe-3 ps-sm-4 pe-sm-4 ps-md-5 gap-1 border border-bottom-0 rounded-top align-items-center position-relative">
+    <div class="d-flex bg-body-secondary pt-3 pb-3 ps-4 ps-md-5 pe-3 pe-sm-4  gap-1 border border-bottom-0 rounded-top align-items-center position-relative">
        <h2 class="flex-grow-1 custom-xs-font">{{ list_name }}</h2>
         <div class="d-flex flex-wrap align-items-center justify-content-end position-relative w-auto">
           <div class="d-flex">
@@ -315,13 +315,10 @@
       <div class="list-group-item d-flex gap-3"
            data-bs-toggle="tooltip"
            data-bs-trigger="hover"
-           data-bs-title="
-           <img src='static/images/pointer.jpg' alt='Pointing Hand Image'>
-           Click on a task to &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make changes"
+           data-bs-title="Click on a task to make changes"
            data-bs-delay='{"show":600,"hide":150}'
            data-bs-html="true"
-           data-bs-placement="right"
-           data-bs-offset="0,55">
+           data-bs-placement="right">
         <form method="POST">
           <input type="hidden" name="form_id" value="checkbox_form">
           {{ checkbox_form.hidden_tag() }}
